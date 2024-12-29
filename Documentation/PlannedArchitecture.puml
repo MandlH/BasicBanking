@@ -1,17 +1,19 @@
 @startuml
 package "Domain Layer" {
     class User {
+        - userId: String
         - username: String
         - password: String
     }
 
     class BankAccount {
-        - accountNumber: String
+        - accountId: String
         - balance: Double
         - accountType: String
     }
 
     class Transaction {
+        - transactionId: String
         - amount: Double
         - date: Date
         - type: String
@@ -24,7 +26,7 @@ package "Domain Layer" {
 
     interface AccountRepositoryPort {
         + saveAccount(account: BankAccount)
-        + findAccountByNumber(accountNumber: String): BankAccount
+        + findAccountById(accountId: String): BankAccount
     }
 
     class UserService {
@@ -33,9 +35,9 @@ package "Domain Layer" {
     }
 
     class TransactionService {
-        + deposit(accountNumber: String, amount: Double)
-        + withdraw(accountNumber: String, amount: Double)
-        + transfer(sourceAccount: String, targetAccount: String, amount: Double)
+        + deposit(accountId: String, amount: Double)
+        + withdraw(accountId: String, amount: Double)
+        + transfer(sourceAccountId: String, targetAccountId: String, amount: Double)
     }
 
     User --> UserService : "used by"
@@ -59,17 +61,19 @@ package "Application Layer" {
     }
 
     class PerformTransactionUseCase {
-        + execute(sourceAccount: String, targetAccount: String, amount: Double): void
+        + execute(sourceAccountId: String, targetAccountId: String, amount: Double): void
     }
 
     RegisterUserUseCase --> InputPort : "uses"
     PerformTransactionUseCase --> InputPort : "uses"
+    InputPort ..> UserService : "delegates to"
+    InputPort ..> TransactionService : "delegates to"
 }
 
 package "Adapters Layer" {
     class ConsoleAdapter {
         + readInput(): String
-        + displayOutput(message: String)
+        + displayOutput(message: String): void
     }
 
     class FileRepositoryAdapter {
@@ -92,6 +96,24 @@ package "Adapters Layer" {
     FileRepositoryAdapter ..|> AccountRepositoryPort : "implements"
 }
 
-EncryptionAdapter --> "Domain Layer" : "provides encryption"
-LoggingAdapter --> "Domain Layer" : "logs events"
+package "Infrastructure Layer" {
+    class Logger {
+        + logEvent(message: String): void
+        + logError(error: Exception): void
+    }
+
+    class EncryptionUtils {
+        + encrypt(data: String): String
+        + decrypt(data: String): String
+    }
+
+    class JsonDatabase {
+        + save(data: Object): void
+        + load(key: String): Object
+    }
+
+    JsonDatabase --> "Domain Layer" : "persists"
+    Logger --> "Application Layer" : "logs events"
+    EncryptionUtils --> "Application Layer" : "secures"
+}
 @enduml

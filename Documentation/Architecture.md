@@ -1,44 +1,58 @@
-# Why I Chose Hexagonal Architecture
+# Why I Chose Onion Architecture
 
-When building this banking application, I wanted an architecture that would make the system robust, easy to maintain, and flexible enough to handle potential future changes. That’s why I chose **Hexagonal Architecture** (also called Ports and Adapters). Here's a breakdown of why this approach was the best fit for this project:
+When building this banking application, my priority was to create a system that is maintainable, testable, and flexible. After considering various architectural styles, I chose **Onion Architecture** because it aligns perfectly with these goals.
 
-## The Benefits of Hexagonal Architecture
+## Key Reasons for Choosing Onion Architecture
 
-1. **Separation of Concerns**:
-   - The core business logic (like managing users, accounts, and transactions) is completely independent of external systems like file storage, the console interface, or cryptography.
-   - This makes the core logic reusable and unaffected by changes in other parts of the system.
+### 1. **Separation of Concerns**
+Onion Architecture ensures that each layer has a distinct responsibility:
+- The **Domain Layer** focuses solely on the business rules, without worrying about technical details like storage or user interfaces.
+- The **Application Layer** coordinates workflows, acting as a bridge between the core domain and external systems.
+- The **Adapters Layer** handles input/output and infrastructure concerns, such as storage or encryption.
 
-2. **Testability**:
-   - Since the core logic interacts with the outside world only through defined interfaces (ports), it’s easy to test without relying on actual implementations. For example, I can test user registration without worrying about how the data is stored.
-   - Mock adapters can be created for testing purposes, making the tests fast and reliable.
+This separation makes the code easier to understand, modify, and extend.
 
-3. **Flexibility**:
-   - Adding new features or switching out components is straightforward. For instance, if I want to move from file-based storage to a database in the future, I only need to update the storage adapter without touching the business logic.
-   - Similarly, adding a web interface or other integrations would only require additional adapters.
+---
 
-## How It Works in This Application
+### 2. **Independence of the Core**
+The **Domain Layer** is at the heart of the application and is completely isolated from external dependencies. This means:
+- Business logic doesn’t depend on databases, user interfaces, or frameworks.
+- Any changes to external systems (e.g., switching from file-based storage to a database) don’t impact the core business logic.
 
-1. **Domain Layer**:
-   - This is where all the important business logic lives. Classes like `User`, `BankAccount`, and `Transaction` represent the main entities, while services like `UserService` and `TransactionService` handle workflows like registering a user or transferring money.
-   - Interfaces like `UserRepositoryPort` and `AccountRepositoryPort` define how the core interacts with storage without being tied to specific implementations.
+This independence ensures long-term stability and flexibility.
 
-2. **Application Layer**:
-   - This layer handles specific use cases, such as registering a user or performing a transaction. It coordinates workflows between the domain and the adapters.
-   - Interfaces like `InputPort` and `OutputPort` ensure the business logic remains decoupled from how requests are received or responses are sent.
+---
 
-3. **Adapters Layer**:
-   - The adapters are the bridge between the core logic and external systems. For example:
-     - `ConsoleAdapter` handles user input and output.
-     - `FileRepositoryAdapter` takes care of saving and loading data from files.
-     - `EncryptionAdapter` manages password hashing and data encryption.
-     - `LoggingAdapter` logs important events like account creation or failed login attempts.
+### 3. **Testability**
+By isolating the business logic in the Domain Layer, I can write unit tests for the core functionality without relying on external systems like databases or APIs. Mock implementations of the ports (interfaces) allow me to test use cases and workflows independently, ensuring:
+- High-quality, bug-free core logic.
+- Confidence when making changes or adding new features.
 
-## Why This Architecture Fits the Project
+---
 
-- **Encapsulation and Security**: Sensitive data like passwords and transaction logs are encrypted, and access to internal data is controlled.
-- **Error Handling and Logging**: Errors are managed gracefully to avoid crashing the program, and logs are generated to help debug issues without exposing sensitive information.
-- **Input Validation**: All user inputs (e.g., usernames, passwords, transaction amounts) are validated to ensure the application remains secure and functional.
+### 4. **Flexibility and Extensibility**
+With Onion Architecture, adding or replacing components is straightforward. For example:
+- If I want to replace the CLI with a web interface, I just need to add a new adapter in the Adapters Layer without touching the Domain or Application Layers.
+- If I decide to use a database instead of file-based storage, I can create a new adapter that implements the repository interfaces.
+
+This makes the system future-proof, accommodating evolving requirements.
+
+---
+
+### 5. **Encapsulation of Technical Details**
+Infrastructure concerns like encryption, logging, and persistence are encapsulated in the Adapters Layer. This keeps technical complexities out of the business logic, making the code more readable and easier to maintain.
+
+---
+
+## How This Architecture Fits the Project
+For this banking application, Onion Architecture provides:
+- A **strong foundation for security**: Sensitive data is processed in isolated, well-defined layers.
+- **Resilience against changes**: The core logic remains unaffected by changes to external systems or user interfaces.
+- **Scalability**: The modular nature allows easy addition of new features, like a web interface or different storage mechanisms.
+
+By using Onion Architecture, I’ve ensured that this application is not only robust and maintainable but also ready to adapt to future requirements.
+
+---
 
 ## Final Thoughts
-
-Hexagonal Architecture gives this application a solid foundation. It’s straightforward to implement and provides the right balance of structure and flexibility. By using this approach, I’ve created a system that meets the current requirements and can easily adapt to future changes without needing major rewrites.
+Onion Architecture was chosen because it perfectly balances simplicity and robustness. It provides a clear structure that isolates business logic, promotes testability, and simplifies future modifications. For a secure and modular banking application like this, it’s the ideal choice.
