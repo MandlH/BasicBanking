@@ -1,21 +1,17 @@
 package org.mandl;
 
 public class UserDto {
-    private String firstName;
-    private String lastName;
-    private String password;
+    private String username;
 
-    public UserDto(String firstName, String lastName, String password) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.password = password;
+    public UserDto(String firstName) {
+        this.username = firstName;
     }
 
-    public String getUserName() {
-        return firstName + "." + lastName;
+    public String getUsername() {
+        return username;
     }
 
-    public String getPassword() {
-        return password;
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

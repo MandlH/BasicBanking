@@ -27,29 +27,6 @@ public class IdentityUserRepository implements org.mandl.repositories.IdentityUs
         }
     }
 
-    public IdentityUser findById(UUID id) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.find(IdentityUser.class, id);
-        }
-    }
-
-    @Override
-    public IdentityUser findByUsername(String username) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery(
-                "FROM IdentityUser WHERE username = :username", IdentityUser.class)
-                .setParameter("username", username)
-                .uniqueResult();
-        }
-    }
-
-
-    public List<IdentityUser> findAll() {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("FROM IdentityUser", IdentityUser.class).list();
-        }
-    }
-
     public void update(IdentityUser user) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
@@ -63,6 +40,27 @@ public class IdentityUserRepository implements org.mandl.repositories.IdentityUs
             session.beginTransaction();
             session.remove(user);
             session.getTransaction().commit();
+        }
+    }
+
+    public IdentityUser findById(UUID id) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.find(IdentityUser.class, id);
+        }
+    }
+
+    public List<IdentityUser> findAll() {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("FROM IdentityUser", IdentityUser.class).list();
+        }
+    }
+
+    public IdentityUser findByUsername(String username) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery(
+                            "FROM IdentityUser WHERE username = :username", IdentityUser.class)
+                    .setParameter("username", username)
+                    .uniqueResult();
         }
     }
 

@@ -18,8 +18,8 @@ final class IdentityUserDomainService implements IdentityUserService {
     }
 
     @Override
-    public void registerUser(UserDto user) {
-        repository.save(new IdentityUser(user.getUserName(), user.getPassword()));
+    public void registerUser(UserDto user, String password) {
+        repository.save(new IdentityUser(user.getUsername(), password));
     }
 
     @Override
@@ -30,7 +30,7 @@ final class IdentityUserDomainService implements IdentityUserService {
     @Override
     public UserDto getUser(String username) {
         IdentityUser user = repository.findByUsername(username);
-        UserDto userDto = new UserDto(user.getUsername(), user.getUsername(), "");
+        UserDto userDto = new UserDto(user.getUsername());
         return userDto;
     }
 }

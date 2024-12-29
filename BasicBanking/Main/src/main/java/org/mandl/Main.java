@@ -19,12 +19,12 @@ public class Main {
             System.out.println("IdentityUserService resolved: " + userService);
 
             // Test user registration and retrieval
-            UserDto user = new UserDto("Test6", "Test6", "Password");
-            userService.registerUser(user);
-            System.out.println("User registered: " + user.getUserName());
+            UserDto user = new UserDto("Test7");
+            userService.registerUser(user, "Password");
+            System.out.println("User registered: " + user.getUsername());
 
             UserDto retrievedUser = userService.getUser("Test.Test");
-            System.out.println("Retrieved user: " + retrievedUser.getUserName());
+            System.out.println("Retrieved user: " + retrievedUser.getUsername());
         } catch (Exception e) {
             e.printStackTrace();
         }
