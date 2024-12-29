@@ -16,6 +16,7 @@
         <module>Presentation</module>
         <module>Service.Abstractions</module>
         <module>Services</module>
+        <module>Log4j</module>
     </modules>
 
     <properties>
@@ -29,6 +30,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>6.1.14</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.36</version>
         </dependency>
     </dependencies>
 </project>
