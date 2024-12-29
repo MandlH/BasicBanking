@@ -1,10 +1,14 @@
 package org.mandl.core.domain.identity;
 
-import org.mandl.core.domain.entities.base.BaseEntity;
-
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.util.UUID;
 
-public class IdentityRole extends BaseEntity {
+public class IdentityRole {
+
+    @Id
+    @GeneratedValue
+    private UUID id;
     private final String name;
 
     private IdentityRole(UUID id, String name) {
@@ -12,7 +16,7 @@ public class IdentityRole extends BaseEntity {
             throw new IllegalArgumentException("Name cannot be null or empty");
         }
         this.name = name.trim().toUpperCase();
-        setId(id);
+        this.id = id;
     }
 
     public static IdentityRole create(String name) {
