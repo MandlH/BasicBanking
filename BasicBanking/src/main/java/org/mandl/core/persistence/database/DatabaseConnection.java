@@ -4,6 +4,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
+import org.mandl.core.domain.identity.IdentityClaim;
+import org.mandl.core.domain.identity.IdentityRole;
 import org.mandl.core.domain.identity.IdentityUser;
 
 public class DatabaseConnection {
@@ -24,6 +26,9 @@ public class DatabaseConnection {
             configuration.setProperty("hibernate.format_sql", "true");
 
             configuration.addAnnotatedClass(IdentityUser.class);
+            configuration.addAnnotatedClass(IdentityRole.class);
+            configuration.addAnnotatedClass(IdentityClaim.class);
+
 
             ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                     .applySettings(configuration.getProperties())

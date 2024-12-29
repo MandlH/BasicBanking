@@ -1,21 +1,33 @@
 package org.mandl.core.domain.identity;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "identity_users")
+@Table
 public class IdentityUser {
 
     @Id
     @GeneratedValue
     private UUID id;
 
-    @Column(name = "username", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(name = "password", nullable = false)
+    @Column(nullable = false)
     private String password;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "id")
+    private List<IdentityRole> roles = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "id")
+    private List<IdentityClaim> claims = new ArrayList<>();
+
 
     public IdentityUser() {
     }

@@ -1,22 +1,28 @@
 package org.mandl.core.domain.identity;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import jakarta.persistence.*;
 import java.util.UUID;
 
-public class IdentityRole {
+@Entity
+@Table
+public final class IdentityRole {
 
     @Id
     @GeneratedValue
     private UUID id;
-    private final String name;
+
+    @Column(nullable = false, unique = true)
+    private String name;
+
+    public IdentityRole() {
+    }
 
     private IdentityRole(UUID id, String name) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Name cannot be null or empty");
         }
-        this.name = name.trim().toUpperCase();
         this.id = id;
+        this.name = name.trim().toUpperCase();
     }
 
     public static IdentityRole create(String name) {
@@ -27,7 +33,24 @@ public class IdentityRole {
         return new IdentityRole(id, name);
     }
 
+    /// Getters & Setters
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty");
+        }
+        this.name = name.trim().toUpperCase();
     }
 }
