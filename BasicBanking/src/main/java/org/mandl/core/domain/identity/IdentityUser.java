@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "identity_users") // Table name in the database
+@Table(name = "identity_users")
 public class IdentityUser {
 
     @Id
@@ -18,7 +18,6 @@ public class IdentityUser {
     private String password;
 
     public IdentityUser() {
-        // Default constructor for Hibernate
     }
 
     public IdentityUser(String username, String password) {
@@ -30,7 +29,6 @@ public class IdentityUser {
         return new IdentityUser(username, password);
     }
 
-    // Getters and setters
     public UUID getId() {
         return id;
     }

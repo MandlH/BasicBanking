@@ -28,7 +28,7 @@ public class IdentityUserRepository {
 
     public List<IdentityUser> findAll() {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("FROM org.mandl.core.domain.identity.IdentityUser", IdentityUser.class).list(); // Entity name
+            return session.createQuery("FROM org.mandl.core.domain.identity.IdentityUser", IdentityUser.class).list();
         }
     }
 
