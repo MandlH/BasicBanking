@@ -1,4 +1,4 @@
 package org.mandl.core.domain.repositories;
 
-public class TransactionRepository {
+public interface TransactionRepository {
 }
