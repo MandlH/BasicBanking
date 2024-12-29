@@ -3,20 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.mandl</groupId>
+        <artifactId>BasicBanking</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-    <groupId>org.mandl</groupId>
-    <artifactId>BasicBanking</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <modules>
-        <module>Main</module>
-        <module>Contracts</module>
-        <module>Domain</module>
-        <module>Persistence</module>
-        <module>Presentation</module>
-        <module>Service.Abstractions</module>
-        <module>Services</module>
-    </modules>
+    <artifactId>Persistence</artifactId>
 
     <properties>
         <maven.compiler.source>23</maven.compiler.source>
@@ -26,9 +19,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>6.1.14</version>
+            <groupId>org.mandl</groupId>
+            <artifactId>Domain</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+            <version>4.0.1</version>
         </dependency>
     </dependencies>
 </project>
