@@ -1,0 +1,97 @@
+@startuml
+package "Domain Layer" {
+    class User {
+        - username: String
+        - password: String
+    }
+
+    class BankAccount {
+        - accountNumber: String
+        - balance: Double
+        - accountType: String
+    }
+
+    class Transaction {
+        - amount: Double
+        - date: Date
+        - type: String
+    }
+
+    interface UserRepositoryPort {
+        + saveUser(user: User)
+        + findUserByUsername(username: String): User
+    }
+
+    interface AccountRepositoryPort {
+        + saveAccount(account: BankAccount)
+        + findAccountByNumber(accountNumber: String): BankAccount
+    }
+
+    class UserService {
+        + registerUser(username: String, password: String)
+        + loginUser(username: String, password: String): Boolean
+    }
+
+    class TransactionService {
+        + deposit(accountNumber: String, amount: Double)
+        + withdraw(accountNumber: String, amount: Double)
+        + transfer(sourceAccount: String, targetAccount: String, amount: Double)
+    }
+
+    User --> UserService : "used by"
+    BankAccount --> TransactionService : "used by"
+    Transaction --> TransactionService : "records"
+    UserService --> UserRepositoryPort : "depends on"
+    TransactionService --> AccountRepositoryPort : "depends on"
+}
+
+package "Application Layer" {
+    interface InputPort {
+        + handleRequest(input: Object): Object
+    }
+
+    interface OutputPort {
+        + handleResponse(response: Object): void
+    }
+
+    class RegisterUserUseCase {
+        + execute(username: String, password: String): void
+    }
+
+    class PerformTransactionUseCase {
+        + execute(sourceAccount: String, targetAccount: String, amount: Double): void
+    }
+
+    RegisterUserUseCase --> InputPort : "uses"
+    PerformTransactionUseCase --> InputPort : "uses"
+}
+
+package "Adapters Layer" {
+    class ConsoleAdapter {
+        + readInput(): String
+        + displayOutput(message: String)
+    }
+
+    class FileRepositoryAdapter {
+        + saveData(data: Object): void
+        + loadData(key: String): Object
+    }
+
+    class EncryptionAdapter {
+        + encrypt(data: String): String
+        + decrypt(data: String): String
+    }
+
+    class LoggingAdapter {
+        + logEvent(message: String): void
+        + logError(error: Exception): void
+    }
+
+    ConsoleAdapter ..|> InputPort : "implements"
+    FileRepositoryAdapter ..|> UserRepositoryPort : "implements"
+    FileRepositoryAdapter ..|> AccountRepositoryPort : "implements"
+}
+
+EncryptionAdapter --> "Domain Layer" : "provides encryption"
+LoggingAdapter --> "Domain Layer" : "logs events"
+@enduml
