@@ -20,7 +20,7 @@ public class Main {
             db.initializeSessionFactory();
 
             Controller authenticationController = ControllerFactory.getAuthenticationController(serviceManager);
-            authenticationController.start(null);
+            authenticationController.start();
 
         } catch (Exception e) {
             logger.error("An error occurred while initializing the CDI container or retrieving services.", e);

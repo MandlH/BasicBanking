@@ -8,6 +8,7 @@ public abstract class BaseController implements Controller {
     private final UserDto user;
     private String lastInput;
     private final String PROMPT = "> ";
+    private List<RoleDto> allowedRoles;
     ServiceManager serviceManager;
     LoggingHandler logger = LoggingHandler.getLogger(BaseController.class);
 
@@ -16,6 +17,15 @@ public abstract class BaseController implements Controller {
             ServiceManager serviceManager) {
         this.user = user;
         this.serviceManager = serviceManager;
+    }
+
+    protected BaseController(
+            UserDto user,
+            ServiceManager serviceManager,
+            List<RoleDto> allowedRoles) {
+        this.user = user;
+        this.serviceManager = serviceManager;
+        this.allowedRoles = allowedRoles;
     }
 
     /// Only for Linux terminal
@@ -50,12 +60,12 @@ public abstract class BaseController implements Controller {
         return isAuthenticated() && isAuthorized(roles);
     }
 
-    public void start(List<RoleDto> roles) {
+    public void start() {
         if (!(this instanceof AuthenticationController)){
-            if (!isAuthenticatedAndAuthorized(roles)){
+            if (!isAuthenticatedAndAuthorized(getAllowedRoles())){
                 logger.warn(this.user.getUsername() + " attempted to enter " + this.getClass().getSimpleName());
                 Controller authenticationController = ControllerFactory.getAuthenticationController(serviceManager);
-                authenticationController.start(roles);
+                authenticationController.start();
                 return;
             }
         }
@@ -87,5 +97,9 @@ public abstract class BaseController implements Controller {
 
     public UserDto getUser() {
         return user;
+    }
+
+    public List<RoleDto> getAllowedRoles() {
+        return allowedRoles;
     }
 }

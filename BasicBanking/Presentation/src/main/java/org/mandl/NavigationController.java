@@ -19,15 +19,15 @@ public class NavigationController extends BaseController {
     protected void execute() {
         switch (getLastInput().toLowerCase()) {
             case BANK_ACCOUNT_MANAGEMENT:
-                ControllerFactory.getBankAccountController(getUser(), serviceManager).start(null);
+                ControllerFactory.getBankAccountController(getUser(), serviceManager).start();
                 break;
             case TRANSACTION_MANAGEMENT:
                 break;
             case USER_ACCOUNT_MANAGEMENT:
-                ControllerFactory.getUserController(getUser(), serviceManager).start(null);
+                ControllerFactory.getUserController(getUser(), serviceManager).start();
                 break;
             case LOGOUT:
-                ControllerFactory.getAuthenticationController(serviceManager).start(null);
+                ControllerFactory.getAuthenticationController(serviceManager).start();
                 break;
         }
     }

@@ -49,7 +49,7 @@ public class UserController extends BaseController {
             displayPrompt("Enter new password: ");
             String newPassword = getLastInput();
             serviceManager.getIdentityUserService().resetPassword(getUser().getId(), newPassword);
-            ControllerFactory.getAuthenticationController(serviceManager).start(null);
+            ControllerFactory.getAuthenticationController(serviceManager).start();
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }
@@ -62,7 +62,7 @@ public class UserController extends BaseController {
             if (username.equals(getUser().getUsername())) {
                 serviceManager.getIdentityUserService().delete(getUser().getId());
             }
-            ControllerFactory.getAuthenticationController(serviceManager).start(null);
+            ControllerFactory.getAuthenticationController(serviceManager).start();
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }

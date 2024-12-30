@@ -56,7 +56,7 @@ public class AuthenticationController extends BaseController {
         try {
             UserDto user = serviceManager.getIdentityUserService().loginUser(username, password);
             Controller navigationController = ControllerFactory.getNavigationController(user, serviceManager);
-            navigationController.start(null);
+            navigationController.start();
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }
@@ -78,7 +78,7 @@ public class AuthenticationController extends BaseController {
         try {
             UserDto user = serviceManager.getIdentityUserService().registerUser(username, password);
             Controller navigationController = ControllerFactory.getNavigationController(user, serviceManager);
-            navigationController.start(null);
+            navigationController.start();
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }
