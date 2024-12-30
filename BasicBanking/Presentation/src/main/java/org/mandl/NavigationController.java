@@ -19,6 +19,7 @@ public class NavigationController extends BaseController {
     protected void execute() {
         switch (getLastInput().toLowerCase()) {
             case BANK_ACCOUNT_MANAGEMENT:
+                ControllerFactory.getBankAccountController(getUser(), serviceManager).start(null);
                 break;
             case TRANSACTION_MANAGEMENT:
                 break;

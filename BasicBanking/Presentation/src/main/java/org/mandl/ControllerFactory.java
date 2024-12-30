@@ -12,4 +12,8 @@ public class ControllerFactory {
     public static Controller getUserController(UserDto user, ServiceManager serviceManager) {
         return UserController.create(user, serviceManager);
     }
+
+    public static Controller getBankAccountController(UserDto user, ServiceManager serviceManager) {
+        return BankAccountController.create(user, serviceManager);
+    }
 }

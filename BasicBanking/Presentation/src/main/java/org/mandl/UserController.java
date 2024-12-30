@@ -34,7 +34,7 @@ public class UserController extends BaseController {
     protected void displayActions() {
         flushConsole();
         System.out.println("\n================================");
-        System.out.println("|     User Account Management     |");
+        System.out.println("|    User Account Management    |");
         System.out.println("=================================");
         System.out.println("| 1: Reset Password             |");
         System.out.println("| 2: Delete User Account        |");
