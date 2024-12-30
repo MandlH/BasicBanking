@@ -33,9 +33,10 @@ public class AuthenticationController extends BaseController {
         System.out.println("\n============================");
         System.out.println("|          WELCOME         |");
         System.out.println("============================");
-        System.out.println("| 1: Move Login            |");
-        System.out.println("| 2: Move Register         |");
-        System.out.println("| exit: Exits Application. |");
+        System.out.println("| 1: Login                 |");
+        System.out.println("| 2: Register              |");
+        System.out.println("| back: Back               |");
+        System.out.println("| exit: Exit Application   |");
         System.out.println("============================");
     }
 

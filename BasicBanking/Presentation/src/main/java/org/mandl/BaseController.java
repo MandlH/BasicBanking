@@ -39,6 +39,10 @@ public abstract class BaseController implements Controller {
     }
 
     private boolean isAuthorized(List<RoleDto> roles) {
+        if (roles == null || roles.isEmpty()) {
+            return true;
+        }
+
         return serviceManager.getIdentityUserService().isAuthorized(user.getId(), roles);
     }
 
@@ -61,9 +65,12 @@ public abstract class BaseController implements Controller {
             displayActions();
             displayPrompt();
 
-            if (lastInput.equalsIgnoreCase("exit")) {
-                System.out.println("\nHave a nice day!");
+            if (lastInput.equalsIgnoreCase("back")) {
                 break;
+            }
+
+            if (lastInput.equalsIgnoreCase("exit")) {
+                System.exit(0);
             }
 
             execute();

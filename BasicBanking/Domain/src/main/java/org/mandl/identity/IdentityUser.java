@@ -45,8 +45,11 @@ public class IdentityUser {
     }
 
     public boolean isAuthorized(List<IdentityRole> requiredRoles) {
-        return requiredRoles == null || requiredRoles.isEmpty() ||
-                (roles != null && roles.stream().anyMatch(role -> requiredRoles.contains(role.getName())));
+        if (requiredRoles == null || requiredRoles.isEmpty()) {
+            return true;
+        }
+
+        return roles != null && roles.stream().anyMatch(role -> requiredRoles.contains(role.getName()));
     }
 
     public String getPassword() {
