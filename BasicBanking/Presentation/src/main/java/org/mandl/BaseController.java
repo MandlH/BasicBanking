@@ -65,7 +65,7 @@ public abstract class BaseController implements Controller {
             displayActions();
             displayPrompt();
 
-            if (lastInput.equalsIgnoreCase("back")) {
+            if (lastInput.equalsIgnoreCase("back") && user != null) {
                 break;
             }
 

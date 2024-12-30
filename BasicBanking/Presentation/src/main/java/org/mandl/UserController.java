@@ -6,6 +6,7 @@ public class UserController extends BaseController {
 
     final String RESET_PASSWORD = "1";
     final String DELETE_USER_ACCOUNT = "2";
+    final String USER_ACCOUNT_INFORMATION = "3";
 
     private UserController(UserDto user, ServiceManager serviceManager) {
         super(user, serviceManager);
@@ -23,6 +24,8 @@ public class UserController extends BaseController {
                 break;
             case DELETE_USER_ACCOUNT:
                 deleteUserAccount();
+            case USER_ACCOUNT_INFORMATION:
+                getUserAccountInformation();
                 break;
         }
     }
@@ -35,6 +38,7 @@ public class UserController extends BaseController {
         System.out.println("=================================");
         System.out.println("| 1: Reset Password             |");
         System.out.println("| 2: Delete User Account        |");
+        System.out.println("| 3: Get User Account Infos     |");
         System.out.println("| back: Back                    |");
         System.out.println("| exit: Exits Application.      |");
         System.out.println("=================================");
@@ -59,6 +63,16 @@ public class UserController extends BaseController {
                 serviceManager.getIdentityUserService().delete(getUser().getId());
             }
             ControllerFactory.getAuthenticationController(serviceManager).start(null);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e);
+        }
+    }
+
+    private void getUserAccountInformation() {
+        try {
+            UserDto user = serviceManager.getIdentityUserService().getUser(getUser().getId());
+            System.out.println(user.toString());
+            displayPrompt("Press Enter to continue: ");
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }

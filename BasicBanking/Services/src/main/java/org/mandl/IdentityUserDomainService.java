@@ -90,7 +90,7 @@ final class IdentityUserDomainService implements IdentityUserService {
 
     @Override
     public UserDto getUser(UUID id) {
-        return null;
+        return UserMapper.INSTANCE.identityUserToUserDto(repository.findById(id));
     }
 
     @Override
