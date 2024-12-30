@@ -1,6 +1,7 @@
 package org.mandl;
 
 import org.mandl.exceptions.ExceptionHandler;
+import org.mandl.message.MessageHandler;
 
 public class UserController extends BaseController {
 
@@ -24,6 +25,7 @@ public class UserController extends BaseController {
                 break;
             case DELETE_USER_ACCOUNT:
                 deleteUserAccount();
+                break;
             case USER_ACCOUNT_INFORMATION:
                 getUserAccountInformation();
                 break;
@@ -61,8 +63,11 @@ public class UserController extends BaseController {
             String username = getLastInput();
             if (username.equals(getUser().getUsername())) {
                 serviceManager.getIdentityUserService().delete(getUser().getId());
+                ControllerFactory.getAuthenticationController(serviceManager).start();
+                return;
             }
-            ControllerFactory.getAuthenticationController(serviceManager).start();
+
+            MessageHandler.displayMessage("Wrong Username, deletion was cancelled.");
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }
