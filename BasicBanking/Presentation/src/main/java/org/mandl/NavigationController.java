@@ -23,6 +23,7 @@ public class NavigationController extends BaseController {
             case TRANSACTION_MANAGEMENT:
                 break;
             case USER_ACCOUNT_MANAGEMENT:
+                ControllerFactory.getUserController(getUser(), serviceManager).start(null);
                 break;
             case LOGOUT:
                 ControllerFactory.getAuthenticationController(serviceManager).start(null);

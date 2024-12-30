@@ -42,6 +42,14 @@ final class IdentityUserDomainService implements IdentityUserService {
     }
 
     @Override
+    public void resetPassword(UUID id, String password) {
+        //TODO HASH Password
+        IdentityUser user = repository.findById(id);
+        user.setPassword(password);
+        repository.update(user);
+    }
+
+    @Override
     public UserDto registerUser(String username, String password) throws AuthenticationException {
         IdentityUser identityUser = repository.findByUsername(username);
 
@@ -72,6 +80,12 @@ final class IdentityUserDomainService implements IdentityUserService {
         }
 
         return UserMapper.INSTANCE.identityUserToUserDto(identityUser);
+    }
+
+    @Override
+    public void delete(UUID id) {
+        IdentityUser user = repository.findById(id);
+        repository.delete(user);
     }
 
     @Override

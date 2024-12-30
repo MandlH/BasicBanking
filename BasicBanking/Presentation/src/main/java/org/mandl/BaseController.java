@@ -84,4 +84,8 @@ public abstract class BaseController implements Controller {
     public String getLastInput() {
         return lastInput;
     }
+
+    public UserDto getUser() {
+        return user;
+    }
 }

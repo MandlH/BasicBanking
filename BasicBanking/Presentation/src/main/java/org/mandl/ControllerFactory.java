@@ -8,4 +8,8 @@ public class ControllerFactory {
     public static Controller getNavigationController(UserDto user, ServiceManager serviceManager) {
         return NavigationController.create(user, serviceManager);
     }
+
+    public static Controller getUserController(UserDto user, ServiceManager serviceManager) {
+        return UserController.create(user, serviceManager);
+    }
 }
