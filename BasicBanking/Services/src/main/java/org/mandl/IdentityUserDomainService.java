@@ -76,7 +76,7 @@ final class IdentityUserDomainService implements IdentityUserService {
         }
 
         if (!password.equals(identityUser.getPassword())) {
-            return null;
+            throw new AuthenticationException("Username or Password are Wrong!");
         }
 
         return UserMapper.INSTANCE.identityUserToUserDto(identityUser);
