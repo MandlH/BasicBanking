@@ -7,6 +7,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
+import org.mandl.entities.BankAccount;
+import org.mandl.entities.BankAccountType;
 import org.mandl.identity.IdentityRole;
 import org.mandl.identity.IdentityUser;
 
@@ -31,6 +33,8 @@ public class DatabaseConnection {
 
         configuration.addAnnotatedClass(IdentityUser.class);
         configuration.addAnnotatedClass(IdentityRole.class);
+        configuration.addAnnotatedClass(BankAccount.class);
+        configuration.addAnnotatedClass(BankAccountType.class);
 
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties())
