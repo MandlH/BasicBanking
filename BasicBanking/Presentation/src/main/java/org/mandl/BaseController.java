@@ -1,16 +1,18 @@
 package org.mandl;
 
+import org.mandl.controller.AuthenticationController;
+
 import java.util.List;
 import java.util.Scanner;
 
 public abstract class BaseController implements Controller {
-    final Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
     private final UserDto user;
     private String lastInput;
     private final String PROMPT = "> ";
     private List<RoleDto> allowedRoles;
-    ServiceManager serviceManager;
-    LoggingHandler logger = LoggingHandler.getLogger(BaseController.class);
+    private final ServiceManager serviceManager;
+    private final LoggingHandler logger = LoggingHandler.getLogger(BaseController.class);
 
     protected BaseController(
             UserDto user,
@@ -91,6 +93,8 @@ public abstract class BaseController implements Controller {
 
     protected abstract void displayActions();
 
+    /// GETTER & SETTER
+
     public String getLastInput() {
         return lastInput;
     }
@@ -101,5 +105,9 @@ public abstract class BaseController implements Controller {
 
     public List<RoleDto> getAllowedRoles() {
         return allowedRoles;
+    }
+
+    public ServiceManager getServiceManager() {
+        return serviceManager;
     }
 }

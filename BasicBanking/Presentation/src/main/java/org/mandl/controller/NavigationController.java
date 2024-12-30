@@ -1,4 +1,6 @@
-package org.mandl;
+package org.mandl.controller;
+
+import org.mandl.*;
 
 public class NavigationController extends BaseController {
 
@@ -19,15 +21,15 @@ public class NavigationController extends BaseController {
     protected void execute() {
         switch (getLastInput().toLowerCase()) {
             case BANK_ACCOUNT_MANAGEMENT:
-                ControllerFactory.getBankAccountController(getUser(), serviceManager).start();
+                ControllerFactory.getBankAccountController(getUser(), getServiceManager()).start();
                 break;
             case TRANSACTION_MANAGEMENT:
                 break;
             case USER_ACCOUNT_MANAGEMENT:
-                ControllerFactory.getUserController(getUser(), serviceManager).start();
+                ControllerFactory.getUserController(getUser(), getServiceManager()).start();
                 break;
             case LOGOUT:
-                ControllerFactory.getAuthenticationController(serviceManager).start();
+                ControllerFactory.getAuthenticationController(getServiceManager()).start();
                 break;
         }
     }

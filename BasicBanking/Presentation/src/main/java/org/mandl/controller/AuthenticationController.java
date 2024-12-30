@@ -1,5 +1,6 @@
-package org.mandl;
+package org.mandl.controller;
 
+import org.mandl.*;
 import org.mandl.exceptions.ExceptionHandler;
 
 public class AuthenticationController extends BaseController {
@@ -54,8 +55,8 @@ public class AuthenticationController extends BaseController {
 
     private void validateLogin(String username, String password) {
         try {
-            UserDto user = serviceManager.getIdentityUserService().loginUser(username, password);
-            Controller navigationController = ControllerFactory.getNavigationController(user, serviceManager);
+            UserDto user = getServiceManager().getIdentityUserService().loginUser(username, password);
+            Controller navigationController = ControllerFactory.getNavigationController(user, getServiceManager());
             navigationController.start();
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
@@ -76,8 +77,8 @@ public class AuthenticationController extends BaseController {
 
     private void validateRegister(String username, String password) {
         try {
-            UserDto user = serviceManager.getIdentityUserService().registerUser(username, password);
-            Controller navigationController = ControllerFactory.getNavigationController(user, serviceManager);
+            UserDto user = getServiceManager().getIdentityUserService().registerUser(username, password);
+            Controller navigationController = ControllerFactory.getNavigationController(user, getServiceManager());
             navigationController.start();
         } catch (Exception e) {
             ExceptionHandler.handleException(e);

@@ -1,5 +1,6 @@
-package org.mandl;
+package org.mandl.controller;
 
+import org.mandl.*;
 import org.mandl.exceptions.ExceptionHandler;
 import org.mandl.message.MessageHandler;
 
@@ -50,8 +51,8 @@ public class UserController extends BaseController {
         try{
             displayPrompt("Enter new password: ");
             String newPassword = getLastInput();
-            serviceManager.getIdentityUserService().resetPassword(getUser().getId(), newPassword);
-            ControllerFactory.getAuthenticationController(serviceManager).start();
+            getServiceManager().getIdentityUserService().resetPassword(getUser().getId(), newPassword);
+            ControllerFactory.getAuthenticationController(getServiceManager()).start();
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }
@@ -62,12 +63,12 @@ public class UserController extends BaseController {
             displayPrompt("Enter Username to Delete Account: ");
             String username = getLastInput();
             if (username.equals(getUser().getUsername())) {
-                serviceManager.getIdentityUserService().delete(getUser().getId());
-                ControllerFactory.getAuthenticationController(serviceManager).start();
+                getServiceManager().getIdentityUserService().delete(getUser().getId());
+                ControllerFactory.getAuthenticationController(getServiceManager()).start();
                 return;
             }
 
-            MessageHandler.displayMessage("Wrong Username, deletion was cancelled.");
+            MessageHandler.displayMessage("Wrong Username, deletion was canceled.");
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }
@@ -75,7 +76,7 @@ public class UserController extends BaseController {
 
     private void getUserAccountInformation() {
         try {
-            UserDto user = serviceManager.getIdentityUserService().getUser(getUser().getId());
+            UserDto user = getServiceManager().getIdentityUserService().getUser(getUser().getId());
             System.out.println(user.toString());
             displayPrompt("Press Enter to continue: ");
         } catch (Exception e) {

@@ -1,4 +1,9 @@
-package org.mandl;
+package org.mandl.controller;
+
+import org.mandl.BaseController;
+import org.mandl.Controller;
+import org.mandl.ServiceManager;
+import org.mandl.UserDto;
 
 public class BankAccountController extends BaseController {
 
