@@ -1,6 +1,5 @@
 package org.mandl;
 
-import java.util.List;
 import java.util.UUID;
 
 public class UserDto {
@@ -11,9 +10,11 @@ public class UserDto {
     }
 
     public UserDto(
-        String username
+            UUID id,
+            String username
     ) {
         this.username = username;
+        this.id = id;
     }
 
     public String getUsername() {
@@ -26,5 +27,14 @@ public class UserDto {
 
     public UUID getId() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        return "UserDto{" + "id=" + id + ", username=" + username + '}';
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 }

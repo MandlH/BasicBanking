@@ -1,12 +1,12 @@
 package org.mandl.repository;
 
-import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import org.mandl.repositories.IdentityUserRepository;
 
 @ApplicationScoped
-@Nonnull
+@Default
 public class RepositoryWrapper implements org.mandl.repositories.RepositoryWrapper {
 
     private final IdentityUserRepository userRepository;

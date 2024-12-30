@@ -2,17 +2,15 @@ package org.mandl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.mandl.identity.IdentityClaim;
 import org.mandl.identity.IdentityRole;
 import org.mandl.identity.IdentityUser;
-import org.mandl.mapper.ClaimMapper;
 import org.mandl.mapper.RoleMapper;
+import org.mandl.mapper.UserMapper;
 import org.mandl.repositories.IdentityUserRepository;
 import org.mandl.repositories.RepositoryWrapper;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 final class IdentityUserDomainService implements IdentityUserService {
@@ -26,20 +24,15 @@ final class IdentityUserDomainService implements IdentityUserService {
     @Override
     public boolean isAuthorized(
             UUID id,
-            List<RoleDto> roles,
-            List<ClaimDto> claims) {
+            List<RoleDto> roles) {
         IdentityUser user = repository.findById(id);
 
         List<IdentityRole> identityRoles = roles
                 .stream()
                 .map(RoleMapper.INSTANCE::roleDtoToIdentityRole)
                 .toList();
-        List<IdentityClaim> identityClaims = claims
-                .stream()
-                .map(ClaimMapper.INSTANCE::claimDtoToIdentityClaim)
-                .toList();
 
-        return user.isAuthorized(identityRoles, identityClaims);
+        return user.isAuthorized(identityRoles);
     }
 
     @Override
@@ -48,8 +41,36 @@ final class IdentityUserDomainService implements IdentityUserService {
     }
 
     @Override
-    public void registerUser(UserDto user, String password) {
-        repository.save(new IdentityUser(user.getUsername(), password));
+    public UserDto registerUser(String username, String password) {
+        IdentityUser identityUser = repository.findByUsername(username);
+
+        if (identityUser != null) {
+            return null;
+        }
+
+        repository.save(new IdentityUser(username, password));
+        IdentityUser newIdentityUser = repository.findByUsername(username);
+
+        if (newIdentityUser == null) {
+            return null;
+        }
+
+        return UserMapper.INSTANCE.identityUserToUserDto(newIdentityUser);
+    }
+
+    @Override
+    public UserDto loginUser(String username, String password) {
+        IdentityUser identityUser = repository.findByUsername(username);
+        //TODO ADD HASHING
+        if (identityUser == null) {
+            return null;
+        }
+
+        if (!password.equals(identityUser.getPassword())) {
+            return null;
+        }
+
+        return UserMapper.INSTANCE.identityUserToUserDto(identityUser);
     }
 
     @Override

@@ -1,12 +1,12 @@
 package org.mandl.database;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
-import org.mandl.identity.IdentityClaim;
 import org.mandl.identity.IdentityRole;
 import org.mandl.identity.IdentityUser;
 
@@ -25,16 +25,22 @@ public class DatabaseConnection {
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
         configuration.setProperty("hibernate.hbm2ddl.auto", "update");
 
-        configuration.setProperty("hibernate.show_sql", "true");
-        configuration.setProperty("hibernate.format_sql", "true");
+        // Disable direct Hibernate SQL output
+        configuration.setProperty("hibernate.show_sql", "false");
+        configuration.setProperty("hibernate.format_sql", "false");
 
         configuration.addAnnotatedClass(IdentityUser.class);
         configuration.addAnnotatedClass(IdentityRole.class);
-        configuration.addAnnotatedClass(IdentityClaim.class);
 
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties())
                 .build();
         return configuration.buildSessionFactory(serviceRegistry);
+    }
+
+    @PostConstruct
+    public void initializeSessionFactory() {
+        // Force initialization of the SessionFactory
+        produceSessionFactory();
     }
 }

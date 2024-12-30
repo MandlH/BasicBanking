@@ -15,13 +15,21 @@
     <Loggers>
         <!-- Application-Specific Logger -->
         <Logger name="org.mandl" level="debug" additivity="false">
-            <AppenderRef ref="Console" />
             <AppenderRef ref="File" />
+        </Logger>
+        <!-- Hibernate-specific loggers -->
+        <Logger name="org.hibernate.SQL" level="info" additivity="false">
+            <AppenderRef ref="File"/>
+        </Logger>
+        <Logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="info" additivity="false">
+            <AppenderRef ref="File"/>
+        </Logger>
+        <Logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="info" additivity="false">
+            <AppenderRef ref="File"/>
         </Logger>
 
         <!-- Root Logger -->
         <Root level="info">
-            <AppenderRef ref="Console" />
             <AppenderRef ref="File" />
         </Root>
     </Loggers>

@@ -1,9 +1,11 @@
 package org.mandl;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
+@Default
 public class ServiceDomainManager implements ServiceManager {
     private final IdentityUserService userService;
 

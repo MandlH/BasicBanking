@@ -6,10 +6,10 @@ import java.util.UUID;
 public interface IdentityUserService {
     public boolean isAuthorized(
             UUID id,
-            List<RoleDto> roles,
-            List<ClaimDto> claims);
+            List<RoleDto> roles);
     boolean isAuthenticated(UUID id);
-    void registerUser(UserDto user, String password);
+    UserDto registerUser(String username, String password);
+    UserDto loginUser(String username, String password);
     UserDto getUser(UUID id);
     UserDto getUser(String username);
 }
