@@ -95,8 +95,6 @@ final class IdentityUserDomainService implements IdentityUserService {
 
     @Override
     public UserDto getUser(String username) {
-        IdentityUser user = repository.findByUsername(username);
-        UserDto userDto = new UserDto();
-        return userDto;
+        return UserMapper.INSTANCE.identityUserToUserDto(repository.findByUsername(username));
     }
 }

@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface IdentityUserService {
-    public boolean isAuthorized(
-            UUID id,
-            List<RoleDto> roles);
+    boolean isAuthorized(UUID id, List<RoleDto> roles);
     boolean isAuthenticated(UUID id);
     void resetPassword(UUID id, String password);
     UserDto registerUser(String username, String password) throws Exception;

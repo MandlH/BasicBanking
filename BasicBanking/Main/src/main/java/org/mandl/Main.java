@@ -16,7 +16,6 @@ public class Main {
             System.out.println("Initialize Database this could take some seconds.");
 
             DatabaseConnection db = container.select(DatabaseConnection.class).get();
-            RepositoryWrapper repositoryWrapper = container.select(RepositoryWrapper.class).get();
             db.initializeSessionFactory();
 
             Controller authenticationController = ControllerFactory.getAuthenticationController(serviceManager);

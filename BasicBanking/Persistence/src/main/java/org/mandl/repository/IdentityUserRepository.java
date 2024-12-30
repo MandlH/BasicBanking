@@ -22,8 +22,4 @@ public class IdentityUserRepository extends BaseRepository implements org.mandl.
                 .uniqueResult();
         }
     }
-
-    public void close() {
-        getSessionFactory().close();
-    }
 }

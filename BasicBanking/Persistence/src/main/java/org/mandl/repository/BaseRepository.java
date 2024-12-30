@@ -45,12 +45,6 @@ public abstract class BaseRepository {
         }
     }
 
-    public List<IdentityUser> findAll() {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("FROM IdentityUser", IdentityUser.class).list();
-        }
-    }
-
     public SessionFactory getSessionFactory() {
         return sessionFactory;
     }

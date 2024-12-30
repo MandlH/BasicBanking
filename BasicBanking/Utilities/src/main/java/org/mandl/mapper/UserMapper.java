@@ -9,5 +9,4 @@ import org.mapstruct.factory.Mappers;
 public interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
     UserDto identityUserToUserDto(IdentityUser user);
-    IdentityUser userDtoToIdentityUser(UserDto userDto);
 }
