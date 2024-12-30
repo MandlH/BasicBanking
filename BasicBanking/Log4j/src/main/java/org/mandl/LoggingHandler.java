@@ -1,14 +1,14 @@
 package org.mandl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LoggingHandler {
 
     private final Logger logger;
 
     private LoggingHandler(Class<?> clazz) {
-        this.logger = LoggerFactory.getLogger(clazz);
+        this.logger = LogManager.getLogger(clazz);
     }
 
     public static LoggingHandler getLogger(Class<?> clazz) {
@@ -59,4 +59,3 @@ public class LoggingHandler {
         logger.trace(message, args);
     }
 }
-

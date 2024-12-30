@@ -1,9 +1,15 @@
 package org.mandl;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface IdentityUserService {
-    public void registerUser(UserDto user, String password);
-    public UserDto getUser(UUID id);
-    public UserDto getUser(String username);
+    public boolean isAuthorized(
+            UUID id,
+            List<RoleDto> roles,
+            List<ClaimDto> claims);
+    boolean isAuthenticated(UUID id);
+    void registerUser(UserDto user, String password);
+    UserDto getUser(UUID id);
+    UserDto getUser(String username);
 }

@@ -33,4 +33,12 @@ public class IdentityClaim {
     public static IdentityClaim create(UUID id, String type, Object value) {
         return new IdentityClaim(id, type, String.valueOf(value));
     }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }

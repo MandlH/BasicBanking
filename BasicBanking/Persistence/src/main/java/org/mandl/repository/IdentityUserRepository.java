@@ -58,9 +58,9 @@ public class IdentityUserRepository implements org.mandl.repositories.IdentityUs
     public IdentityUser findByUsername(String username) {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery(
-                            "FROM IdentityUser WHERE username = :username", IdentityUser.class)
-                    .setParameter("username", username)
-                    .uniqueResult();
+                "FROM IdentityUser WHERE username = :username", IdentityUser.class)
+                .setParameter("username", username)
+                .uniqueResult();
         }
     }
 
