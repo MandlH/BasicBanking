@@ -3,7 +3,7 @@ package org.mandl;
 import java.util.List;
 import java.util.Scanner;
 
-public abstract class BaseController {
+public abstract class BaseController implements Controller {
     final Scanner scanner = new Scanner(System.in);
     private final UserDto user;
     private String lastInput;
@@ -46,11 +46,11 @@ public abstract class BaseController {
         return isAuthenticated() && isAuthorized(roles);
     }
 
-    public final void start(List<RoleDto> roles) {
+    public void start(List<RoleDto> roles) {
         if (!(this instanceof AuthenticationController)){
             if (!isAuthenticatedAndAuthorized(roles)){
                 logger.warn(this.user.getUsername() + " attempted to enter " + this.getClass().getSimpleName());
-                AuthenticationController authenticationController = new AuthenticationController(serviceManager);
+                Controller authenticationController = ControllerFactory.getAuthenticationController(serviceManager);
                 authenticationController.start(roles);
                 return;
             }
@@ -76,9 +76,5 @@ public abstract class BaseController {
 
     public String getLastInput() {
         return lastInput;
-    }
-
-    public void setLastInput(String lastInput) {
-        this.lastInput = lastInput;
     }
 }

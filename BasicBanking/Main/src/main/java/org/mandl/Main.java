@@ -16,11 +16,10 @@ public class Main {
             System.out.println("Initialize Database this could take some seconds.");
 
             DatabaseConnection db = container.select(DatabaseConnection.class).get();
-            db.initializeSessionFactory();
             RepositoryWrapper repositoryWrapper = container.select(RepositoryWrapper.class).get();
+            db.initializeSessionFactory();
 
-            AuthenticationController authenticationController = new AuthenticationController(serviceManager);
-
+            Controller authenticationController = ControllerFactory.getAuthenticationController(serviceManager);
             authenticationController.start(null);
 
         } catch (Exception e) {

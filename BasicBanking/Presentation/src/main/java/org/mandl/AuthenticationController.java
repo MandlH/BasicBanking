@@ -1,12 +1,18 @@
 package org.mandl;
 
+import org.mandl.exceptions.ExceptionHandler;
+
 public class AuthenticationController extends BaseController {
 
     final String LOGIN = "1";
     final String REGISTER = "2";
 
-    public AuthenticationController(ServiceManager serviceManager) {
+    private AuthenticationController(ServiceManager serviceManager) {
         super(null, serviceManager);
+    }
+
+    public static Controller create(ServiceManager serviceManager) {
+        return new AuthenticationController(serviceManager);
     }
 
     @Override
@@ -63,7 +69,12 @@ public class AuthenticationController extends BaseController {
     }
 
     private void validateRegister(String username, String password) {
-        UserDto user = serviceManager.getIdentityUserService().registerUser(username, password);
-        System.out.println(user.toString());
+        try {
+            UserDto user = serviceManager.getIdentityUserService().registerUser(username, password);
+            Controller navigationController = ControllerFactory.getNavigationController(user, serviceManager);
+            navigationController.start(null);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e);
+        }
     }
 }

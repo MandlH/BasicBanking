@@ -1,18 +1,22 @@
 package org.mandl;
 
-import java.util.Scanner;
+public class NavigationController extends BaseController {
 
-public class NavigationController
-{
-    public static void start() {
-        Scanner scanner = new Scanner(System.in);
-        while(true) {
-
-        }
+    private NavigationController(UserDto user, ServiceManager serviceManager) {
+        super(user, serviceManager);
     }
 
-    private static void printMenu() {
-        System.out.println("\n========== Banking System Main Menu ==========\n" +
-                "1. ");
+    public static Controller create(UserDto user, ServiceManager serviceManager) {
+        return new NavigationController(user, serviceManager);
+    }
+
+    @Override
+    protected void execute() {
+
+    }
+
+    @Override
+    protected void displayActions() {
+
     }
 }
