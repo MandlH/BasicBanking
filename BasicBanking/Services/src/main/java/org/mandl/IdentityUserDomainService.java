@@ -2,6 +2,7 @@ package org.mandl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.mandl.exceptions.AuthenticationException;
 import org.mandl.identity.IdentityRole;
 import org.mandl.identity.IdentityUser;
 import org.mandl.mapper.RoleMapper;
@@ -41,29 +42,29 @@ final class IdentityUserDomainService implements IdentityUserService {
     }
 
     @Override
-    public UserDto registerUser(String username, String password) {
+    public UserDto registerUser(String username, String password) throws AuthenticationException {
         IdentityUser identityUser = repository.findByUsername(username);
 
         if (identityUser != null) {
-            return null;
+            throw new AuthenticationException("Username already exists!");
         }
 
         repository.save(new IdentityUser(username, password));
         IdentityUser newIdentityUser = repository.findByUsername(username);
 
         if (newIdentityUser == null) {
-            return null;
+            throw new AuthenticationException("Automatic login failed!");
         }
 
         return UserMapper.INSTANCE.identityUserToUserDto(newIdentityUser);
     }
 
     @Override
-    public UserDto loginUser(String username, String password) {
+    public UserDto loginUser(String username, String password) throws AuthenticationException {
         IdentityUser identityUser = repository.findByUsername(username);
         //TODO ADD HASHING
         if (identityUser == null) {
-            return null;
+            throw new AuthenticationException("Username or Password are Wrong!");
         }
 
         if (!password.equals(identityUser.getPassword())) {

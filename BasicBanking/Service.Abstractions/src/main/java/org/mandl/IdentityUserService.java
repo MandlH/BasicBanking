@@ -8,8 +8,8 @@ public interface IdentityUserService {
             UUID id,
             List<RoleDto> roles);
     boolean isAuthenticated(UUID id);
-    UserDto registerUser(String username, String password);
-    UserDto loginUser(String username, String password);
+    UserDto registerUser(String username, String password) throws Exception;
+    UserDto loginUser(String username, String password) throws Exception;
     UserDto getUser(UUID id);
     UserDto getUser(String username);
 }

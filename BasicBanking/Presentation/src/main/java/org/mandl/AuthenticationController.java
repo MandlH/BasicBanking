@@ -52,8 +52,13 @@ public class AuthenticationController extends BaseController {
     }
 
     private void validateLogin(String username, String password) {
-        UserDto user = serviceManager.getIdentityUserService().loginUser(username, password);
-        System.out.println(user.toString());
+        try {
+            UserDto user = serviceManager.getIdentityUserService().loginUser(username, password);
+            Controller navigationController = ControllerFactory.getNavigationController(user, serviceManager);
+            navigationController.start(null);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e);
+        }
     }
 
     private void startRegister() {
