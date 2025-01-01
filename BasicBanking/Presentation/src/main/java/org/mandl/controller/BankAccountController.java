@@ -76,14 +76,34 @@ public class BankAccountController extends BaseController {
         try {
             flushConsole();
             MessageHandler.printHeader(CREATE_BANK_ACCOUNT);
+
             displayPrompt("Enter Account Number: ");
             String accountNumber = getLastInput();
+
+            // Display available account types dynamically
+            StringBuilder typeOptions = new StringBuilder("Enter Type (");
+            for (BankAccountType type : BankAccountType.values()) {
+                typeOptions.append(type).append(", ");
+            }
+            typeOptions.setLength(typeOptions.length() - 2); // Remove trailing ", "
+            typeOptions.append("): ");
+            displayPrompt(typeOptions.toString());
+            String typeInput = getLastInput().toUpperCase();
+
+            BankAccountType accountType;
+            try {
+                accountType = BankAccountType.valueOf(typeInput);
+            } catch (IllegalArgumentException e) {
+                MessageHandler.printMessage("Invalid account type. Please try again.");
+                return;
+            }
+
             displayPrompt("Enter Balance: ");
             String balanceInput = getLastInput().replace(",", ".");
             double balance = Double.parseDouble(balanceInput);
 
             BankAccountDto bankAccountDto = new BankAccountDto(
-                    accountNumber, balance, BankAccountType.BUSINESS, getUser()
+                    accountNumber, balance, accountType, getUser()
             );
 
             getServiceManager().getBankAccountService().createBankAccount(bankAccountDto);
@@ -96,6 +116,14 @@ public class BankAccountController extends BaseController {
     }
 
     private void deleteBankAccount() {
-        MessageHandler.printHeader(DELETE_BANK_ACCOUNT);
+        try {
+            MessageHandler.printHeader(DELETE_BANK_ACCOUNT);
+            displayPrompt("Enter Account Number: ");
+            var accountNumber = getLastInput();
+            getServiceManager().getBankAccountService().deleteBankAccount(accountNumber);
+            MessageHandler.printMessage("Bank account deleted successfully.");
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e);
+        }
     }
 }

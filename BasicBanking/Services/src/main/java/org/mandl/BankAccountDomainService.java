@@ -38,8 +38,8 @@ final class BankAccountDomainService implements BankAccountService {
 
     @Override
     public BankAccountDto createBankAccount(BankAccountDto bankAccountDto) {
-        repositoryWrapper.beginTransaction();
         try {
+            repositoryWrapper.beginTransaction();
             var bankAccount = BankAccountMapper.INSTANCE.dtoToDomain(bankAccountDto);
             bankAccountRepository.createBankAccount(bankAccount);
             repositoryWrapper.commitTransaction();
@@ -51,4 +51,15 @@ final class BankAccountDomainService implements BankAccountService {
         }
     }
 
+    @Override
+    public void deleteBankAccount(String accountNumber) {
+        try {
+            repositoryWrapper.beginTransaction();
+            bankAccountRepository.deleteBankAccount(accountNumber);
+            repositoryWrapper.commitTransaction();
+        } catch (Exception e) {
+            repositoryWrapper.rollbackTransaction();
+            throw new ServiceException("Error deleting bank account", e);
+        }
+    }
 }

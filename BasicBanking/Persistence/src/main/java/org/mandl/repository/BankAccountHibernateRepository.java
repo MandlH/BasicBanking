@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hibernate.Session;
 import org.mandl.entities.BankAccount;
+import org.mandl.entities.BankAccountType;
 import org.mandl.identity.IdentityUser;
 import org.mandl.repositories.BankAccountRepository;
 import org.mandl.unitOfWork.UnitOfWork;
@@ -42,4 +43,19 @@ public class BankAccountHibernateRepository
         return findById(bankAccount.getId());
     }
 
+    @Override
+    public void deleteBankAccount(String accountNumber) {
+        var bankaccount = findByAccountNumber(accountNumber);
+        if (bankaccount == null) {
+            throw new IllegalStateException("Account not found for ID: " + accountNumber);
+        }
+        delete(bankaccount);
+    }
+
+    private BankAccount findByAccountNumber(String accountNumber) {
+        return session.createQuery(
+                        "FROM BankAccount WHERE accountNumber = :accountNumber", BankAccount.class)
+                .setParameter("accountNumber", accountNumber)
+                .uniqueResult();
+    }
 }

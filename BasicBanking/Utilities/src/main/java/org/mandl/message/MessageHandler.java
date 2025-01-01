@@ -97,7 +97,7 @@ public class MessageHandler {
     }
 
     public static void printError(String errorMessage, Exception e) {
-        logger.error(e.getMessage());
+        logger.error(e.getMessage(), e);
         printError(errorMessage);
     }
 }
