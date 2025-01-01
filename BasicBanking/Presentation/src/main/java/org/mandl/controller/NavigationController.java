@@ -1,13 +1,17 @@
 package org.mandl.controller;
 
+import jdk.jshell.spi.ExecutionControl;
 import org.mandl.*;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class NavigationController extends BaseController {
 
-    final String BANK_ACCOUNT_MANAGEMENT = "1";
-    final String TRANSACTION_MANAGEMENT = "2";
-    final String USER_ACCOUNT_MANAGEMENT = "3";
-    final String LOGOUT = "4";
+    private final String BANK_ACCOUNTS_MANAGEMENT = "Bank Accounts Management";
+    private final String TRANSACTION_MANAGEMENT = "Transaction Management";
+    private final String USER_ACCOUNTS_MANAGEMENT = "User Accounts Management";
+    private final String LOGOUT = "Logout";
 
     private NavigationController(UserDto user, ServiceManager serviceManager) {
         super(user, serviceManager);
@@ -18,34 +22,36 @@ public class NavigationController extends BaseController {
     }
 
     @Override
-    protected void execute() {
-        switch (getLastInput().toLowerCase()) {
-            case BANK_ACCOUNT_MANAGEMENT:
-                ControllerFactory.getBankAccountController(getUser(), getServiceManager()).start();
-                break;
-            case TRANSACTION_MANAGEMENT:
-                break;
-            case USER_ACCOUNT_MANAGEMENT:
-                ControllerFactory.getUserController(getUser(), getServiceManager()).start();
-                break;
-            case LOGOUT:
-                ControllerFactory.getAuthenticationController(getServiceManager()).start();
-                break;
-        }
+    protected Map<String, String> getOptions() {
+        Map<String, String> options = new LinkedHashMap<>();
+        options.put("1", BANK_ACCOUNTS_MANAGEMENT);
+        options.put("2", TRANSACTION_MANAGEMENT);
+        options.put("3", USER_ACCOUNTS_MANAGEMENT);
+        options.put("4", LOGOUT);
+        return options;
     }
 
     @Override
-    protected void displayActions() {
-        flushConsole();
-        System.out.println("\n================================");
-        System.out.println("|           Navigation          |");
-        System.out.println("=================================");
-        System.out.println("| 1: Bank Accounts Management   |");
-        System.out.println("| 2: Transaction Management     |");
-        System.out.println("| 3: User Account Management    |");
-        System.out.println("| 4: Logout                     |");
-        System.out.println("| back: Back                    |");
-        System.out.println("| exit: Exits Application.      |");
-        System.out.println("=================================");
+    protected String getMenuTitle() {
+        return "Navigation";
+    }
+
+    @Override
+    protected void execute() {
+        String action = getOptions().get(getLastInput());
+        if (action == null) return;
+
+        switch (action) {
+            case BANK_ACCOUNTS_MANAGEMENT -> ControllerFactory.getBankAccountController(getUser(), getServiceManager()).start();
+            case TRANSACTION_MANAGEMENT -> {
+                try {
+                    throw new ExecutionControl.NotImplementedException("asdf");
+                } catch (ExecutionControl.NotImplementedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            case USER_ACCOUNTS_MANAGEMENT -> ControllerFactory.getUserController(getUser(), getServiceManager()).start();
+            case LOGOUT -> ControllerFactory.getAuthenticationController(getServiceManager()).start();
+        }
     }
 }

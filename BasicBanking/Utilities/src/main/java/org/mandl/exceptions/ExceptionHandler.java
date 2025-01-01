@@ -6,9 +6,9 @@ public class ExceptionHandler {
 
     public static void handleException(Exception e) {
         if (e instanceof AuthenticationException) {
-            MessageHandler.displayError(e.getMessage());
+            MessageHandler.printError(e.getMessage());
         } else {
-            MessageHandler.displayError("An unexpected error occurred", e);
+            MessageHandler.printError("An unexpected error occurred", e);
         }
     }
 }

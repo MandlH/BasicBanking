@@ -2,11 +2,15 @@ package org.mandl.controller;
 
 import org.mandl.*;
 import org.mandl.exceptions.ExceptionHandler;
+import org.mandl.message.MessageHandler;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class AuthenticationController extends BaseController {
 
-    final String LOGIN = "1";
-    final String REGISTER = "2";
+    private final String LOGIN = "Login";
+    private final String REGISTER = "REGISTER";
 
     private AuthenticationController(ServiceManager serviceManager) {
         super(null, serviceManager);
@@ -18,34 +22,31 @@ public class AuthenticationController extends BaseController {
 
     @Override
     protected void execute() {
-        switch (getLastInput().toLowerCase()) {
-            case LOGIN:
-                startLogin();
-                break;
-            case REGISTER:
-                startRegister();
-                break;
+        String action = getOptions().get(getLastInput());
+        if (action == null) return;
+
+        switch (action) {
+            case LOGIN -> startLogin();
+            case REGISTER -> startRegister();
         }
     }
 
     @Override
-    protected void displayActions() {
-        flushConsole();
-        System.out.println("\n============================");
-        System.out.println("|          WELCOME         |");
-        System.out.println("============================");
-        System.out.println("| 1: Login                 |");
-        System.out.println("| 2: Register              |");
-        System.out.println("| back: Back               |");
-        System.out.println("| exit: Exit Application   |");
-        System.out.println("============================");
+    protected Map<String, String> getOptions() {
+        Map<String, String> options = new LinkedHashMap<>();
+        options.put("1", LOGIN);
+        options.put("2", REGISTER);
+        return options;
+    }
+
+    @Override
+    protected String getMenuTitle() {
+        return "Authentication";
     }
 
     private void startLogin() {
         flushConsole();
-        System.out.println("\n============================");
-        System.out.println("|           Login          |");
-        System.out.println("============================");
+        MessageHandler.printHeader(LOGIN);
         displayPrompt("Enter Username: ");
         String username = getLastInput();
         displayPrompt("Enter Password: ");
@@ -65,9 +66,7 @@ public class AuthenticationController extends BaseController {
 
     private void startRegister() {
         flushConsole();
-        System.out.println("\n============================");
-        System.out.println("|         Register         |");
-        System.out.println("============================");
+        MessageHandler.printHeader(REGISTER);
         displayPrompt("Enter Username: ");
         String username = getLastInput();
         displayPrompt("Enter Password: ");

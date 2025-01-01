@@ -58,12 +58,14 @@ final class IdentityUserDomainService implements IdentityUserService {
     @Override
     public void resetPassword(UUID id, String password) {
         try {
+            repositoryWrapper.beginTransaction();
             var user = identityUserRepository.findById(id);
             if (user == null) {
                 throw new IllegalArgumentException("User not found.");
             }
-            user.setPassword(hashPassword(password)); // Use secure hashing
+            user.setPassword(hashPassword(password));
             identityUserRepository.update(user);
+            repositoryWrapper.commitTransaction();
         } catch (Exception e) {
             logger.error("Unexpected error while resetting password for user ID: " + id, e);
             throw new ServiceException("An unexpected error occurred while resetting the password.", e);
@@ -74,13 +76,14 @@ final class IdentityUserDomainService implements IdentityUserService {
     @Override
     public UserDto registerUser(String username, String password) throws AuthenticationException {
         try {
+            repositoryWrapper.beginTransaction();
             if (identityUserRepository.findByUsername(username) != null) {
                 throw new AuthenticationException("Username already exists!");
             }
 
             var newUser = new IdentityUser(username, hashPassword(password));
             identityUserRepository.save(newUser);
-
+            repositoryWrapper.commitTransaction();
             var savedUser = identityUserRepository.findByUsername(username);
             if (savedUser == null) {
                 logger.error("User registration failed: Unable to retrieve saved user with username " + username);
@@ -117,12 +120,14 @@ final class IdentityUserDomainService implements IdentityUserService {
     @Override
     public void delete(UUID id) {
         try {
+            repositoryWrapper.beginTransaction();
             var user = identityUserRepository.findById(id);
             if (user == null) {
                 throw new IllegalArgumentException("User with ID " + id + " not found.");
             }
 
             identityUserRepository.delete(user);
+            repositoryWrapper.commitTransaction();
         } catch (IllegalArgumentException e) {
             logger.warn(e.getMessage(), e);
             System.err.println("Deletion failed: " + e.getMessage());

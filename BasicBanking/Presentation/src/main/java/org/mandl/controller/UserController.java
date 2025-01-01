@@ -4,11 +4,10 @@ import org.mandl.*;
 import org.mandl.exceptions.ExceptionHandler;
 import org.mandl.message.MessageHandler;
 
-public class UserController extends BaseController {
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-    final String RESET_PASSWORD = "1";
-    final String DELETE_USER_ACCOUNT = "2";
-    final String USER_ACCOUNT_INFORMATION = "3";
+public class UserController extends BaseController {
 
     private UserController(UserDto user, ServiceManager serviceManager) {
         super(user, serviceManager);
@@ -19,39 +18,39 @@ public class UserController extends BaseController {
     }
 
     @Override
-    protected void execute() {
-        switch (getLastInput().toLowerCase()) {
-            case RESET_PASSWORD:
-                resetPassword();
-                break;
-            case DELETE_USER_ACCOUNT:
-                deleteUserAccount();
-                break;
-            case USER_ACCOUNT_INFORMATION:
-                getUserAccountInformation();
-                break;
-        }
+    protected Map<String, String> getOptions() {
+        Map<String, String> options = new LinkedHashMap<>();
+        options.put("1", "Reset Password");
+        options.put("2", "Delete User Account");
+        options.put("3", "Get User Account Info");
+        return options;
     }
 
     @Override
-    protected void displayActions() {
-        flushConsole();
-        System.out.println("\n================================");
-        System.out.println("|    User Account Management    |");
-        System.out.println("=================================");
-        System.out.println("| 1: Reset Password             |");
-        System.out.println("| 2: Delete User Account        |");
-        System.out.println("| 3: Get User Account Infos     |");
-        System.out.println("| back: Back                    |");
-        System.out.println("| exit: Exits Application.      |");
-        System.out.println("=================================");
+    protected String getMenuTitle() {
+        return "User Action Management";
+    }
+
+    @Override
+    protected void execute() {
+        String action = getOptions().get(getLastInput());
+        if (action == null) return;
+
+        switch (action) {
+            case "Reset Password" -> resetPassword();
+            case "Delete User Account" -> deleteUserAccount();
+            case "Get User Account Info" -> getUserAccountInformation();
+        }
     }
 
     private void resetPassword() {
-        try{
+        try {
+            flushConsole();
+            MessageHandler.printHeader("Reset Password");
             displayPrompt("Enter new password: ");
             String newPassword = getLastInput();
             getServiceManager().getIdentityUserService().resetPassword(getUser().getId(), newPassword);
+            MessageHandler.printMessage("Password reset successfully.");
             ControllerFactory.getAuthenticationController(getServiceManager()).start();
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
@@ -60,15 +59,17 @@ public class UserController extends BaseController {
 
     private void deleteUserAccount() {
         try {
-            displayPrompt("Enter Username to Delete Account: ");
+            flushConsole();
+            MessageHandler.printHeader("Delete User Account");
+            displayPrompt("Enter your username to confirm deletion: ");
             String username = getLastInput();
             if (username.equals(getUser().getUsername())) {
                 getServiceManager().getIdentityUserService().delete(getUser().getId());
+                MessageHandler.printMessage("Account deleted successfully.");
                 ControllerFactory.getAuthenticationController(getServiceManager()).start();
                 return;
             }
-
-            MessageHandler.displayMessage("Wrong Username, deletion was canceled.");
+            MessageHandler.printMessage("Wrong username. Deletion canceled.");
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }
@@ -76,9 +77,10 @@ public class UserController extends BaseController {
 
     private void getUserAccountInformation() {
         try {
+            flushConsole();
+            MessageHandler.printHeader("User Account Information");
             UserDto user = getServiceManager().getIdentityUserService().getUser(getUser().getId());
-            System.out.println(user.toString());
-            displayPrompt("Press Enter to continue: ");
+            MessageHandler.printMessage(user.toString());
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }

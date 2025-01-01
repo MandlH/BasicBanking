@@ -1,8 +1,10 @@
 package org.mandl;
 
 import org.mandl.controller.AuthenticationController;
+import org.mandl.message.MessageHandler;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public abstract class BaseController implements Controller {
@@ -10,27 +12,20 @@ public abstract class BaseController implements Controller {
     private final UserDto user;
     private String lastInput;
     private final String PROMPT = "> ";
-    private List<RoleDto> allowedRoles;
+    private final List<RoleDto> allowedRoles;
     private final ServiceManager serviceManager;
     private final LoggingHandler logger = LoggingHandler.getLogger(BaseController.class);
 
-    protected BaseController(
-            UserDto user,
-            ServiceManager serviceManager) {
-        this.user = user;
-        this.serviceManager = serviceManager;
+    protected BaseController(UserDto user, ServiceManager serviceManager) {
+        this(user, serviceManager, null);
     }
 
-    protected BaseController(
-            UserDto user,
-            ServiceManager serviceManager,
-            List<RoleDto> allowedRoles) {
+    protected BaseController(UserDto user, ServiceManager serviceManager, List<RoleDto> allowedRoles) {
         this.user = user;
         this.serviceManager = serviceManager;
         this.allowedRoles = allowedRoles;
     }
 
-    /// Only for Linux terminal
     public void flushConsole() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
@@ -46,30 +41,12 @@ public abstract class BaseController implements Controller {
         lastInput = scanner.nextLine().trim();
     }
 
-    private boolean isAuthenticated() {
-        return user != null;
-    }
-
-    private boolean isAuthorized(List<RoleDto> roles) {
-        if (roles == null || roles.isEmpty()) {
-            return true;
-        }
-
-        return serviceManager.getIdentityUserService().isAuthorized(user.getId(), roles);
-    }
-
-    private boolean isAuthenticatedAndAuthorized(List<RoleDto> roles) {
-        return isAuthenticated() && isAuthorized(roles);
-    }
-
     public void start() {
-        if (!(this instanceof AuthenticationController)){
-            if (!isAuthenticatedAndAuthorized(getAllowedRoles())){
-                logger.warn(this.user.getUsername() + " attempted to enter " + this.getClass().getSimpleName());
-                Controller authenticationController = ControllerFactory.getAuthenticationController(serviceManager);
-                authenticationController.start();
-                return;
-            }
+        if (!(this instanceof AuthenticationController) && !isAuthenticatedAndAuthorized(getAllowedRoles())) {
+            logger.warn(this.user.getUsername() + " attempted to enter " + this.getClass().getSimpleName());
+            Controller authenticationController = ControllerFactory.getAuthenticationController(serviceManager);
+            authenticationController.start();
+            return;
         }
 
         while (true) {
@@ -91,9 +68,14 @@ public abstract class BaseController implements Controller {
 
     protected abstract void execute();
 
-    protected abstract void displayActions();
+    protected abstract Map<String, String> getOptions();
 
-    /// GETTER & SETTER
+    protected abstract String getMenuTitle();
+
+    protected void displayActions() {
+        flushConsole();
+        MessageHandler.printMenu(getMenuTitle(), getOptions());
+    }
 
     public String getLastInput() {
         return lastInput;
@@ -109,5 +91,20 @@ public abstract class BaseController implements Controller {
 
     public ServiceManager getServiceManager() {
         return serviceManager;
+    }
+
+    private boolean isAuthenticated() {
+        return user != null;
+    }
+
+    private boolean isAuthorized(List<RoleDto> roles) {
+        if (roles == null || roles.isEmpty()) {
+            return true;
+        }
+        return serviceManager.getIdentityUserService().isAuthorized(user.getId(), roles);
+    }
+
+    private boolean isAuthenticatedAndAuthorized(List<RoleDto> roles) {
+        return isAuthenticated() && isAuthorized(roles);
     }
 }

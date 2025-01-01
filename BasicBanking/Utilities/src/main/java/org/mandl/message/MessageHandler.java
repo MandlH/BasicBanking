@@ -3,13 +3,14 @@ package org.mandl.message;
 import org.mandl.LoggingHandler;
 import org.mandl.exceptions.ExceptionHandler;
 
+import java.util.Map;
 import java.util.Scanner;
 
 public class MessageHandler {
     private static final Scanner scanner = new Scanner(System.in);
     private static final LoggingHandler logger = LoggingHandler.getLogger(ExceptionHandler.class);
 
-    public static void displayMessage(String message) {
+    public static void printMessage(String message) {
         int length = 7 + message.length();
         System.out.println("-".repeat(length));
         System.out.println("Message: " + message);
@@ -19,17 +20,57 @@ public class MessageHandler {
         logger.info(message);
     }
 
-    public static void displayError(String errorMessage) {
-        int length = 7 + errorMessage.length();
-        System.out.println("-".repeat(length));
-        System.out.println("Error: " + errorMessage);
-        System.out.println("Press Enter to continue...");
-        System.out.println("-".repeat(length));
+    public static void printHeader(String title) {
+        int borderLength = title.length() + 6;
+        printTitle(title, borderLength);
+    }
+
+    public static void printMenu(String title, Map<String, String> options) {
+        int maxLength = Math.max(
+                title.length(),
+                options.values().stream().mapToInt(String::length).max().orElse(0)
+        );
+        maxLength = Math.max(maxLength, "back: Back".length());
+        maxLength = Math.max(maxLength, "exit: Exit Application".length());
+
+        int borderLength = maxLength + 6; // 6 = 2 for "| |" and 4 for padding
+        printTitle(title, borderLength);
+
+        int index = 1;
+        for (Map.Entry<String, String> entry : options.entrySet()) {
+            System.out.printf("| %s: %-"+(borderLength - 5)+"s|\n", entry.getKey(), entry.getValue());
+            index++;
+        }
+
+        System.out.printf("| %-"+(borderLength - 2)+"s|\n", "back: Back");
+        System.out.printf("| %-"+(borderLength - 2)+"s|\n", "exit: Exit Application");
+        System.out.println("=".repeat(borderLength));
+    }
+
+    private static void printTitle(String title, int borderLength) {
+        String border = "=".repeat(borderLength);
+
+        System.out.println("\n" + border);
+        String repeat = " ".repeat((borderLength - title.length() - 1) / 2);
+        System.out.printf("|%s%s%s|\n", repeat, title, repeat);
+        System.out.println(border);
+    }
+
+    public static void printError(String errorMessage) {
+        var borderLength = errorMessage.length() + 10;
+        String border = "*".repeat(borderLength);
+
+        System.out.println("\n" + border);
+        String padding = " ".repeat((borderLength - errorMessage.length() - 2) / 2);
+        System.out.printf("*%s%s%s*\n", padding, errorMessage, padding);
+        System.out.println(border);
+        System.out.printf("%s%s\n", "Enter to acknowledge...", padding);
+
         scanner.nextLine();
     }
 
-    public static void displayError(String errorMessage, Exception e) {
+    public static void printError(String errorMessage, Exception e) {
         logger.error(e.getMessage());
-        displayError(errorMessage);
+        printError(errorMessage);
     }
 }
