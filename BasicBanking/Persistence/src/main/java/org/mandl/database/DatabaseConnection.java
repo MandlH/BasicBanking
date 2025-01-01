@@ -27,6 +27,8 @@ public class DatabaseConnection {
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
         configuration.setProperty("hibernate.hbm2ddl.auto", "update");
 
+        configuration.setProperty("hibernate.use_sql_comments", "true");  // Add comments in the SQL for context
+
         // Disable direct Hibernate SQL output
         configuration.setProperty("hibernate.show_sql", "false");
         configuration.setProperty("hibernate.format_sql", "false");

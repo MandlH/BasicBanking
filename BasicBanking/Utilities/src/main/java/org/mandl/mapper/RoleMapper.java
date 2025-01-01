@@ -8,6 +8,6 @@ import org.mapstruct.factory.Mappers;
 @Mapper
 public interface RoleMapper {
     RoleMapper INSTANCE = Mappers.getMapper(RoleMapper.class);
-    RoleDto identiyRoleToRoleDto(IdentityRole identityRole);
-    IdentityRole roleDtoToIdentityRole(RoleDto roleDto);
+    RoleDto domainToDto(IdentityRole identityRole);
+    IdentityRole dtoToDomain(RoleDto roleDto);
 }

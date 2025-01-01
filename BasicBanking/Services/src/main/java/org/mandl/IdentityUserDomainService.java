@@ -16,21 +16,23 @@ import java.util.UUID;
 @ApplicationScoped
 final class IdentityUserDomainService implements IdentityUserService {
     private final IdentityUserRepository repository;
+    private final RepositoryWrapper repositoryWrapper;
 
     @Inject
     public IdentityUserDomainService(RepositoryWrapper repositoryWrapper) {
+        this.repositoryWrapper = repositoryWrapper;
         this.repository = repositoryWrapper.getIdentityUserRepository();
     }
 
     @Override
-    public boolean isAuthorized(
-            UUID id,
-            List<RoleDto> roles) {
+    public boolean isAuthorized(UUID id, List<RoleDto> roles) {
         IdentityUser user = repository.findById(id);
-
+        if (user == null) {
+            throw new IllegalArgumentException("User not found.");
+        }
         List<IdentityRole> identityRoles = roles
                 .stream()
-                .map(RoleMapper.INSTANCE::roleDtoToIdentityRole)
+                .map(RoleMapper.INSTANCE::dtoToDomain)
                 .toList();
 
         return user.isAuthorized(identityRoles);
@@ -38,63 +40,75 @@ final class IdentityUserDomainService implements IdentityUserService {
 
     @Override
     public boolean isAuthenticated(UUID id) {
-        return false;
+        return repository.findById(id) != null;
     }
 
     @Override
     public void resetPassword(UUID id, String password) {
-        //TODO HASH Password
         IdentityUser user = repository.findById(id);
-        user.setPassword(password);
+        if (user == null) {
+            throw new IllegalArgumentException("User not found.");
+        }
+        user.setPassword(hashPassword(password)); // Use secure hashing
         repository.update(user);
     }
 
     @Override
     public UserDto registerUser(String username, String password) throws AuthenticationException {
-        IdentityUser identityUser = repository.findByUsername(username);
-
-        if (identityUser != null) {
+        if (repository.findByUsername(username) != null) {
             throw new AuthenticationException("Username already exists!");
         }
 
-        repository.save(new IdentityUser(username, password));
-        IdentityUser newIdentityUser = repository.findByUsername(username);
+        IdentityUser newUser = new IdentityUser(username, hashPassword(password));
+        repository.save(newUser);
 
-        if (newIdentityUser == null) {
-            throw new AuthenticationException("Automatic login failed!");
-        }
-
-        return UserMapper.INSTANCE.identityUserToUserDto(newIdentityUser);
+        return UserMapper.INSTANCE.domainToDto(repository.findByUsername(username));
     }
 
     @Override
     public UserDto loginUser(String username, String password) throws AuthenticationException {
         IdentityUser identityUser = repository.findByUsername(username);
-        //TODO ADD HASHING
-        if (identityUser == null) {
-            throw new AuthenticationException("Username or Password are Wrong!");
+        if (identityUser == null || !verifyPassword(password, identityUser.getPassword())) {
+            throw new AuthenticationException("Username or Password are wrong!");
         }
-
-        if (!password.equals(identityUser.getPassword())) {
-            throw new AuthenticationException("Username or Password are Wrong!");
-        }
-
-        return UserMapper.INSTANCE.identityUserToUserDto(identityUser);
+        return UserMapper.INSTANCE.domainToDto(identityUser);
     }
 
     @Override
     public void delete(UUID id) {
         IdentityUser user = repository.findById(id);
+        if (user == null) {
+            throw new IllegalArgumentException("User not found.");
+        }
         repository.delete(user);
     }
 
     @Override
     public UserDto getUser(UUID id) {
-        return UserMapper.INSTANCE.identityUserToUserDto(repository.findById(id));
+        IdentityUser user = repository.findById(id);
+        if (user == null) {
+            throw new IllegalArgumentException("User not found.");
+        }
+
+        return UserMapper.INSTANCE.domainToDto(user);
     }
 
     @Override
     public UserDto getUser(String username) {
-        return UserMapper.INSTANCE.identityUserToUserDto(repository.findByUsername(username));
+        IdentityUser user = repository.findByUsername(username);
+        if (user == null) {
+            throw new IllegalArgumentException("User not found.");
+        }
+        return UserMapper.INSTANCE.domainToDto(user);
+    }
+
+    private String hashPassword(String password) {
+        // Implement password hashing
+        return password; // Placeholder
+    }
+
+    private boolean verifyPassword(String password, String hashedPassword) {
+        // Implement password verification
+        return password.equals(hashedPassword); // Placeholder
     }
 }

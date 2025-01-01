@@ -1,51 +1,46 @@
 package org.mandl.repository;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.mandl.identity.IdentityUser;
-
-import java.util.List;
 import java.util.UUID;
 
-public abstract class BaseRepository {
+public abstract class BaseRepository<T> implements org.mandl.repositories.BaseRepository<T> {
+    protected final Session session;
+    private final Class<T> entityClass;
 
-    private final SessionFactory sessionFactory;
-
-    protected BaseRepository(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    protected BaseRepository(Session session, Class<T> entityClass) {
+        this.session = session;
+        this.entityClass = entityClass;
     }
 
-    public void save(IdentityUser user) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            session.persist(user);
-            session.getTransaction().commit();
+    public void save(T entity) {
+        try {
+            session.persist(entity);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save entity.", e);
         }
     }
 
-    public void update(IdentityUser user) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            session.merge(user);
-            session.getTransaction().commit();
+    public void update(T entity) {
+        try {
+            session.merge(entity);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update entity.", e);
         }
     }
 
-    public void delete(IdentityUser user) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            session.remove(user);
-            session.getTransaction().commit();
+    public void delete(T entity) {
+        try {
+            session.remove(entity);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete entity.", e);
         }
     }
 
-    public IdentityUser findById(UUID id) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.find(IdentityUser.class, id);
+    public T findById(UUID id) {
+        try {
+            return session.find(entityClass, id);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to find entity by ID.", e);
         }
-    }
-
-    public SessionFactory getSessionFactory() {
-        return sessionFactory;
     }
 }

@@ -29,7 +29,7 @@ public class MessageHandler {
     }
 
     public static void displayError(String errorMessage, Exception e) {
-        displayError(errorMessage);
         logger.error(e.getMessage());
+        displayError(errorMessage);
     }
 }

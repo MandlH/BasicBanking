@@ -4,10 +4,6 @@ import org.mandl.identity.IdentityUser;
 
 import java.util.UUID;
 
-public interface IdentityUserRepository {
-    IdentityUser findById(UUID id);
+public interface IdentityUserRepository extends BaseRepository<IdentityUser> {
     IdentityUser findByUsername(String username);
-    void save(IdentityUser identityUser);
-    void delete(IdentityUser identityUser);
-    void update(IdentityUser identityUser);
 }

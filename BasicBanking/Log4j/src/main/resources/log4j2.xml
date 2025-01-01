@@ -23,14 +23,17 @@
         </Logger>
         <Logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="info" additivity="false">
             <AppenderRef ref="File"/>
+<!--            <AppenderRef ref="Console"/>-->
         </Logger>
         <Logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="info" additivity="false">
             <AppenderRef ref="File"/>
+<!--            <AppenderRef ref="Console"/>-->
         </Logger>
 
         <!-- Root Logger -->
         <Root level="info">
             <AppenderRef ref="File" />
+<!--            <AppenderRef ref="Console"/>-->
         </Root>
     </Loggers>
 </Configuration>

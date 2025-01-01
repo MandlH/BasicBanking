@@ -3,7 +3,7 @@ package org.mandl;
 import jakarta.enterprise.inject.se.SeContainer;
 import jakarta.enterprise.inject.se.SeContainerInitializer;
 import org.mandl.database.DatabaseConnection;
-import org.mandl.repository.RepositoryWrapper;
+import org.mandl.message.MessageHandler;
 
 public class Main {
     public static void main(String[] args) {
@@ -13,7 +13,7 @@ public class Main {
             logger.info("CDI container initialized.");
             ServiceManager serviceManager = container.select(ServiceManager.class).get();
 
-            System.out.println("Initialize Database this could take some seconds.");
+            System.out.println("Initialize Database, this could take some seconds.");
 
             DatabaseConnection db = container.select(DatabaseConnection.class).get();
             db.initializeSessionFactory();

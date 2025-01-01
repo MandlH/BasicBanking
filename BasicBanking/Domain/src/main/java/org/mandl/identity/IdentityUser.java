@@ -1,6 +1,7 @@
 package org.mandl.identity;
 
 import jakarta.persistence.*;
+import org.mandl.entities.BankAccount;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +21,15 @@ public class IdentityUser {
     @Column(nullable = false)
     private String password;
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BankAccount> accounts;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "id")
-    private List<IdentityRole> roles = new ArrayList<>();
+    @JoinColumn(name = "user_id")
+    private List<IdentityRole> roles;
 
     public IdentityUser() {
+        this.accounts = new ArrayList<>();
     }
 
     public IdentityUser(String username, String password) {
@@ -40,16 +45,16 @@ public class IdentityUser {
         return id;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public String getUsername() {
         return username;
     }
 
-    public boolean isAuthorized(List<IdentityRole> requiredRoles) {
-        if (requiredRoles == null || requiredRoles.isEmpty()) {
-            return true;
-        }
-
-        return roles != null && roles.stream().anyMatch(role -> requiredRoles.contains(role.getName()));
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -58,5 +63,38 @@ public class IdentityUser {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public List<BankAccount> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(List<BankAccount> accounts) {
+        this.accounts = accounts;
+    }
+
+    public void addAccount(BankAccount account) {
+        accounts.add(account);
+        account.setOwner(this);
+    }
+
+    public void removeAccount(BankAccount account) {
+        accounts.remove(account);
+        account.setOwner(null);
+    }
+
+    public List<IdentityRole> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<IdentityRole> roles) {
+        this.roles = roles;
+    }
+
+    public boolean isAuthorized(List<IdentityRole> requiredRoles) {
+        if (requiredRoles == null || requiredRoles.isEmpty()) {
+            return true;
+        }
+        return roles != null && roles.stream().anyMatch(role -> requiredRoles.contains(role.getName()));
     }
 }

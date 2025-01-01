@@ -1,9 +1,11 @@
 package org.mandl.controller;
 
-import org.mandl.BaseController;
-import org.mandl.Controller;
-import org.mandl.ServiceManager;
-import org.mandl.UserDto;
+import org.mandl.*;
+import org.mandl.exceptions.ExceptionHandler;
+import org.mandl.identity.IdentityUser;
+import org.mandl.message.MessageHandler;
+
+import java.util.List;
 
 public class BankAccountController extends BaseController {
 
@@ -36,7 +38,7 @@ public class BankAccountController extends BaseController {
     @Override
     protected void displayActions() {
         flushConsole();
-        System.out.println("\n================================");
+        System.out.println("\n=================================");
         System.out.println("|    Bank Account Management    |");
         System.out.println("=================================");
         System.out.println("| 1: List Bank Accounts         |");
@@ -48,9 +50,34 @@ public class BankAccountController extends BaseController {
     }
 
     private void listBankAccounts() {
+        try {
+            List<BankAccountDto> bankAccounts = getServiceManager()
+                    .getBankAccountService()
+                    .getAllBankAccountsByOwnerId(getUser().getId());
+            System.out.println(bankAccounts);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e);
+        }
     }
 
     private void createBankAccount() {
+        try {
+            System.out.println("\n============================");
+            System.out.println("|    Create Bank Account    |");
+            System.out.println("=============================");
+            displayPrompt("Enter Account Number: ");
+            String accountNumber = getLastInput();
+            displayPrompt("Enter Balance: ");
+            String balanceInput = getLastInput();
+            balanceInput = balanceInput.replace(",", ".");
+            double balance = Double.parseDouble(balanceInput);
+            BankAccountDto bankAccountDto = new BankAccountDto(accountNumber, balance, BankAccountType.BUSINESS, getUser());
+            getServiceManager().getBankAccountService().createBankAccount(bankAccountDto);
+        } catch (NumberFormatException e) {
+            MessageHandler.displayMessage("Invalid balance format.");
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e);
+        }
 
     }
 
