@@ -7,7 +7,9 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 @ApplicationScoped
-public class UnitOfWork implements org.mandl.repositories.UnitOfWork {
+public class UnitOfWork
+        implements org.mandl.repositories.UnitOfWork {
+
     private final Session session;
     private Transaction transaction;
 

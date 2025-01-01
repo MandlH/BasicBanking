@@ -23,6 +23,10 @@ public class LoggingHandler {
         logger.warn(message);
     }
 
+    public void warn(String message, Throwable throwable) {
+        logger.warn(message, throwable);
+    }
+
     public void error(String message) {
         logger.error(message);
     }

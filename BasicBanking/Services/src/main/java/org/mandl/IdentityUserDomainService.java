@@ -2,6 +2,7 @@ package org.mandl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.hibernate.service.spi.ServiceException;
 import org.mandl.exceptions.AuthenticationException;
 import org.mandl.identity.IdentityRole;
 import org.mandl.identity.IdentityUser;
@@ -15,77 +16,127 @@ import java.util.UUID;
 
 @ApplicationScoped
 final class IdentityUserDomainService implements IdentityUserService {
-    private final IdentityUserRepository repository;
+    private static final LoggingHandler logger = LoggingHandler.getLogger(BankAccountDomainService.class);
+    private final IdentityUserRepository identityUserRepository;
     private final RepositoryWrapper repositoryWrapper;
 
     @Inject
     public IdentityUserDomainService(RepositoryWrapper repositoryWrapper) {
         this.repositoryWrapper = repositoryWrapper;
-        this.repository = repositoryWrapper.getIdentityUserRepository();
+        this.identityUserRepository = repositoryWrapper.getIdentityUserRepository();
     }
 
     @Override
     public boolean isAuthorized(UUID id, List<RoleDto> roles) {
-        IdentityUser user = repository.findById(id);
-        if (user == null) {
-            throw new IllegalArgumentException("User not found.");
-        }
-        List<IdentityRole> identityRoles = roles
-                .stream()
-                .map(RoleMapper.INSTANCE::dtoToDomain)
-                .toList();
+        try {
+            var user = identityUserRepository.findById(id);
+            if (user == null) {
+                throw new IllegalArgumentException("User not found.");
+            }
+            List<IdentityRole> identityRoles = roles
+                    .stream()
+                    .map(RoleMapper.INSTANCE::dtoToDomain)
+                    .toList();
 
-        return user.isAuthorized(identityRoles);
+            return user.isAuthorized(identityRoles);
+        } catch (SecurityException e) {
+            logger.error("Error during authorization", e);
+            return false;
+        }
     }
 
     @Override
     public boolean isAuthenticated(UUID id) {
-        return repository.findById(id) != null;
+        try {
+            return identityUserRepository.findById(id) != null;
+        } catch (SecurityException e) {
+            logger.error("Error during authorization", e);
+            return false;
+        }
     }
 
     @Override
     public void resetPassword(UUID id, String password) {
-        IdentityUser user = repository.findById(id);
-        if (user == null) {
-            throw new IllegalArgumentException("User not found.");
+        try {
+            var user = identityUserRepository.findById(id);
+            if (user == null) {
+                throw new IllegalArgumentException("User not found.");
+            }
+            user.setPassword(hashPassword(password)); // Use secure hashing
+            identityUserRepository.update(user);
+        } catch (Exception e) {
+            logger.error("Unexpected error while resetting password for user ID: " + id, e);
+            throw new ServiceException("An unexpected error occurred while resetting the password.", e);
         }
-        user.setPassword(hashPassword(password)); // Use secure hashing
-        repository.update(user);
     }
+
 
     @Override
     public UserDto registerUser(String username, String password) throws AuthenticationException {
-        if (repository.findByUsername(username) != null) {
-            throw new AuthenticationException("Username already exists!");
+        try {
+            if (identityUserRepository.findByUsername(username) != null) {
+                throw new AuthenticationException("Username already exists!");
+            }
+
+            var newUser = new IdentityUser(username, hashPassword(password));
+            identityUserRepository.save(newUser);
+
+            var savedUser = identityUserRepository.findByUsername(username);
+            if (savedUser == null) {
+                logger.error("User registration failed: Unable to retrieve saved user with username " + username);
+                throw new ServiceException("An unexpected error occurred: User registration verification failed.");
+            }
+
+            return UserMapper.INSTANCE.domainToDto(savedUser);
+        } catch (AuthenticationException e) {
+            throw e;
+
+        } catch (Exception e) {
+            logger.error("An unexpected error occurred while registering user " + username, e);
+            throw new ServiceException("An unexpected error occurred while registering. Please try again.", e);
         }
-
-        IdentityUser newUser = new IdentityUser(username, hashPassword(password));
-        repository.save(newUser);
-
-        return UserMapper.INSTANCE.domainToDto(repository.findByUsername(username));
     }
+
 
     @Override
     public UserDto loginUser(String username, String password) throws AuthenticationException {
-        IdentityUser identityUser = repository.findByUsername(username);
-        if (identityUser == null || !verifyPassword(password, identityUser.getPassword())) {
-            throw new AuthenticationException("Username or Password are wrong!");
+        try {
+            var identityUser = identityUserRepository.findByUsername(username);
+            if (identityUser == null || !verifyPassword(password, identityUser.getPassword())) {
+                throw new AuthenticationException("Username or Password are wrong!");
+            }
+            return UserMapper.INSTANCE.domainToDto(identityUser);
+        } catch (AuthenticationException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("An unexpected error occurred while logining user " + username, e);
+            return null;
         }
-        return UserMapper.INSTANCE.domainToDto(identityUser);
     }
 
     @Override
     public void delete(UUID id) {
-        IdentityUser user = repository.findById(id);
-        if (user == null) {
-            throw new IllegalArgumentException("User not found.");
+        try {
+            var user = identityUserRepository.findById(id);
+            if (user == null) {
+                throw new IllegalArgumentException("User with ID " + id + " not found.");
+            }
+
+            identityUserRepository.delete(user);
+        } catch (IllegalArgumentException e) {
+            logger.warn(e.getMessage(), e);
+            System.err.println("Deletion failed: " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("An unexpected error occurred while deleting user with ID " + id + ": " + e.getMessage());
+            throw new RuntimeException("Failed to delete user with ID " + id, e);
         }
-        repository.delete(user);
     }
+
 
     @Override
     public UserDto getUser(UUID id) {
-        IdentityUser user = repository.findById(id);
+        var user = identityUserRepository.findById(id);
         if (user == null) {
             throw new IllegalArgumentException("User not found.");
         }
@@ -95,7 +146,7 @@ final class IdentityUserDomainService implements IdentityUserService {
 
     @Override
     public UserDto getUser(String username) {
-        IdentityUser user = repository.findByUsername(username);
+        var user = identityUserRepository.findByUsername(username);
         if (user == null) {
             throw new IllegalArgumentException("User not found.");
         }

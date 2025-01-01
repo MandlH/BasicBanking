@@ -5,18 +5,20 @@ import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import org.mandl.repositories.BankAccountRepository;
 import org.mandl.repositories.IdentityUserRepository;
+import org.mandl.repositories.RepositoryWrapper;
 import org.mandl.repositories.UnitOfWork;
 
 @ApplicationScoped
 @Default
-public class RepositoryWrapper implements org.mandl.repositories.RepositoryWrapper {
+public class HibernateRepositoryWrapper
+        implements RepositoryWrapper {
 
     private final UnitOfWork unitOfWork;
     private final IdentityUserRepository userRepository;
     private final BankAccountRepository bankAccountRepository;
 
     @Inject
-    public RepositoryWrapper(
+    public HibernateRepositoryWrapper(
             UnitOfWork unitOfWork,
             IdentityUserRepository userRepository,
             BankAccountRepository bankAccountRepository) {
@@ -26,19 +28,11 @@ public class RepositoryWrapper implements org.mandl.repositories.RepositoryWrapp
     }
 
     public void beginTransaction() {
-        try {
-            unitOfWork.beginTransaction();
-        } catch (Exception e) {
-            throw new RuntimeException("Transaction failed", e);
-        }
+        unitOfWork.beginTransaction();
     }
 
     public void commitTransaction() {
-        try {
-            unitOfWork.commit();
-        } catch (Exception e) {
-            throw new RuntimeException("Transaction commit failed.", e);
-        }
+        unitOfWork.commit();
     }
 
     public void rollbackTransaction() {

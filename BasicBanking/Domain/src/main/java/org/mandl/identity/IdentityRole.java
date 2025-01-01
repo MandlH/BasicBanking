@@ -33,8 +33,6 @@ public final class IdentityRole {
         return new IdentityRole(id, name);
     }
 
-    /// Getters & Setters
-
     public UUID getId() {
         return id;
     }

@@ -18,7 +18,7 @@ public class DatabaseConnection {
     @Produces
     @ApplicationScoped
     public SessionFactory produceSessionFactory() {
-        Configuration configuration = new Configuration();
+        var configuration = new Configuration();
 
         configuration.setProperty("hibernate.connection.driver_class", "org.h2.Driver");
         configuration.setProperty("hibernate.connection.url", "jdbc:h2:~/banking_app;AUTO_SERVER=TRUE");
@@ -38,7 +38,7 @@ public class DatabaseConnection {
         configuration.addAnnotatedClass(BankAccount.class);
         configuration.addAnnotatedClass(BankAccountType.class);
 
-        ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+        var serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties())
                 .build();
         return configuration.buildSessionFactory(serviceRegistry);
