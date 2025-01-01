@@ -55,4 +55,12 @@ public class BankAccountDto {
     public void setId(UUID id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "| %-15s | %12.2f | %-10s |",
+                accountNumber, balance, accountType
+        );
+    }
 }

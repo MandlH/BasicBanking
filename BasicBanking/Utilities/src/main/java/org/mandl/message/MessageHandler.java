@@ -3,6 +3,7 @@ package org.mandl.message;
 import org.mandl.LoggingHandler;
 import org.mandl.exceptions.ExceptionHandler;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -13,12 +14,38 @@ public class MessageHandler {
     public static void printMessage(String message) {
         int length = 7 + message.length();
         System.out.println("-".repeat(length));
-        System.out.println("Message: " + message);
-        System.out.println("Press Enter to continue...");
+        System.out.println(message);
         System.out.println("-".repeat(length));
+        System.out.println("Press Enter to continue...");
         scanner.nextLine();
         logger.info(message);
     }
+
+    public static void printMessages(List<String> messages) {
+        if (messages == null || messages.isEmpty()) {
+            System.out.println("No messages to display.");
+            return;
+        }
+
+        int maxLength = messages.stream()
+                .mapToInt(String::length)
+                .max()
+                .orElse(0);
+
+        int borderLength = maxLength + 6;
+        String border = "-".repeat(borderLength);
+
+        System.out.println(border);
+        for (String message : messages) {
+            String padding = " ".repeat((borderLength - message.length() - 2) / 2);
+            System.out.printf("%s%s%s\n", padding, message, padding);
+        }
+        System.out.println(border);
+
+        System.out.println("Press Enter to continue...");
+        scanner.nextLine();
+    }
+
 
     public static void printHeader(String title) {
         int borderLength = title.length() + 6;

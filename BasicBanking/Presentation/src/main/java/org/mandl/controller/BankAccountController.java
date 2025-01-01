@@ -7,6 +7,7 @@ import org.mandl.message.MessageHandler;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class BankAccountController extends BaseController {
 
@@ -54,8 +55,18 @@ public class BankAccountController extends BaseController {
             List<BankAccountDto> bankAccounts = getServiceManager()
                     .getBankAccountService()
                     .getAllBankAccountsByOwnerId(getUser().getId());
-            System.out.println("\nYour Bank Accounts:");
-            bankAccounts.forEach(account -> System.out.println(account));
+
+            var message = Stream.concat(
+                            Stream.of(String.format(
+                                    "| %-15s | %-12s | %-10s |",
+                                    "Account No.", "Balance", "Type"
+                            )),
+                            bankAccounts.stream()
+                                    .map(BankAccountDto::toString)
+                    )
+                    .toList();
+
+            MessageHandler.printMessages(message);
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }
