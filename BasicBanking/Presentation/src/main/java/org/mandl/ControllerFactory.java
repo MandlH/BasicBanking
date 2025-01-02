@@ -1,9 +1,6 @@
 package org.mandl;
 
-import org.mandl.controller.AuthenticationController;
-import org.mandl.controller.BankAccountController;
-import org.mandl.controller.NavigationController;
-import org.mandl.controller.UserController;
+import org.mandl.controller.*;
 
 public class ControllerFactory {
     public static Controller getAuthenticationController(ServiceManager serviceManager) {
@@ -20,5 +17,9 @@ public class ControllerFactory {
 
     public static Controller getBankAccountController(UserDto user, ServiceManager serviceManager) {
         return BankAccountController.create(user, serviceManager);
+    }
+
+    public static Controller getTransactionController(UserDto user, ServiceManager serviceManager) {
+        return TransactionController.create(user, serviceManager);
     }
 }

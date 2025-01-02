@@ -43,13 +43,7 @@ public class NavigationController extends BaseController {
 
         switch (action) {
             case BANK_ACCOUNTS_MANAGEMENT -> ControllerFactory.getBankAccountController(getUser(), getServiceManager()).start();
-            case TRANSACTION_MANAGEMENT -> {
-                try {
-                    throw new ExecutionControl.NotImplementedException("asdf");
-                } catch (ExecutionControl.NotImplementedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+            case TRANSACTION_MANAGEMENT -> ControllerFactory.getTransactionController(getUser(), getServiceManager()).start();
             case USER_ACCOUNTS_MANAGEMENT -> ControllerFactory.getUserController(getUser(), getServiceManager()).start();
             case LOGOUT -> ControllerFactory.getAuthenticationController(getServiceManager()).start();
         }
