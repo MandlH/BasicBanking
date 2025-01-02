@@ -5,5 +5,6 @@ import java.util.UUID;
 
 public interface TransactionService {
     List<TransactionDto> getTransactions(TransactionTypeDto type, UUID bankAccountId);
-    public List<TransactionDto> getTransactions(UUID bankAccountId);
+    List<TransactionDto> getTransactions(UUID bankAccountId);
+    void createTransaction(TransactionDto transaction, BankAccountDto bankAccountFrom, BankAccountDto bankAccountTo);
 }

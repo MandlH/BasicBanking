@@ -7,7 +7,7 @@ import org.mandl.entities.TransactionType;
 import java.util.List;
 import java.util.UUID;
 
-public interface TransactionRepository {
+public interface TransactionRepository extends BaseRepository<Transaction>  {
     List<Transaction> getTransactions(TransactionType type, UUID bankAccountId);
     List<Transaction> getTransactions(UUID bankAccountId);
 }

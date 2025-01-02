@@ -4,10 +4,9 @@ import org.mandl.*;
 import org.mandl.exceptions.ExceptionHandler;
 import org.mandl.message.MessageHandler;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public class TransactionController extends BaseController {
 
@@ -55,48 +54,153 @@ public class TransactionController extends BaseController {
     private void listTransactionHistory() {
         try {
             MessageHandler.printHeader(TRANSACTION_HISTORY);
+            var bankAccountService = getServiceManager().getBankAccountService();
+
+            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(getUser().getId());
+            PartialController.PrintBankAccounts(bankAccounts, false);
+
             printPrompt("Enter Bank Account No.: ");
             var bankAccountNumber = getLastInput();
-            var bankAccount = getServiceManager()
-                    .getBankAccountService()
-                    .getBankAccount(getUser().getId(), bankAccountNumber);
 
-            if (bankAccount == null) {
-                MessageHandler.printError("Bank Account Not Found");
-                return;
-            }
-
+            var bankAccount = bankAccountService.getBankAccount(getUser().getId(), bankAccountNumber);
             var transactions = getServiceManager()
                     .getTransactionService()
                     .getTransactions(bankAccount.getId());
-
-            List<String> message = Stream.concat(
-                            Stream.of(String.format(
-                                    "| %-15s | %-12s | %-20s | %-20s | %12s |",
-                                    "Date", "Type", "From", "To", "Amount"
-                            )),
-                            transactions.stream()
-                                    .sorted((t1, t2) -> t2.getTransactionDate().compareTo(t1.getTransactionDate()))
-                                    .map(TransactionDto::toString)
-                    )
-                    .toList();
-
-            MessageHandler.printMessages(message);
-
+            PartialController.PrintTransactions(transactions, true);
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }
     }
 
     private void createDepositTransaction() {
+        try {
+            MessageHandler.printHeader(DEPOSIT_TRANSACTION);
+            var bankAccountService = getServiceManager().getBankAccountService();
 
+            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(getUser().getId());
+            PartialController.PrintBankAccounts(bankAccounts, false);
+            printPrompt("Enter Bank Account No.: ");
+            var bankAccountNumber = getLastInput();
+
+            var bankAccount = bankAccountService.getBankAccount(getUser().getId(), bankAccountNumber);
+
+            double amount = getValidatedAmount("Enter Amount to Deposit: ", true);
+
+            var depositTransaction = new TransactionDto(
+                    TransactionTypeDto.DEPOSIT,
+                    amount,
+                    LocalDateTime.now(),
+                    null,
+                    bankAccount
+            );
+
+            printPrompt("Enter Description (Optional): ");
+            String description = getLastInput();
+
+            if (!description.isBlank()){
+                depositTransaction.setDescription(description);
+            }
+
+            getServiceManager().getTransactionService().createTransaction(depositTransaction, null, bankAccount);
+            MessageHandler.printMessage("Deposit Transaction created successfully.");
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e);
+        }
     }
 
     private void createWithdrawTransaction() {
+        try {
+            MessageHandler.printHeader(WITHDRAW_TRANSACTION);
+            var bankAccountService = getServiceManager().getBankAccountService();
 
+            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(getUser().getId());
+            PartialController.PrintBankAccounts(bankAccounts, false);
+            printPrompt("Enter Bank Account No.: ");
+            var bankAccountNumber = getLastInput();
+
+            var bankAccount = bankAccountService.getBankAccount(getUser().getId(), bankAccountNumber);
+
+            double amount = getValidatedAmount("Enter Amount to Withdraw: ", false);
+
+            var withdrawTransaction = new TransactionDto(
+                    TransactionTypeDto.WITHDRAWAL,
+                    amount,
+                    LocalDateTime.now(),
+                    bankAccount,
+                    null
+            );
+
+            printPrompt("Enter Description (Optional): ");
+            String description = getLastInput();
+
+            if (!description.isBlank()) {
+                withdrawTransaction.setDescription(description);
+            }
+
+            getServiceManager().getTransactionService().createTransaction(withdrawTransaction, bankAccount, null);
+            MessageHandler.printMessage("Withdraw Transaction created successfully.");
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e);
+        }
     }
 
     private void createTransferTransaction() {
+        try {
+            MessageHandler.printHeader(TRANSFER_TRANSACTION);
+            var bankAccountService = getServiceManager().getBankAccountService();
 
+            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(getUser().getId());
+            PartialController.PrintBankAccounts(bankAccounts, false);
+            printPrompt("Enter Source Bank Account No.: ");
+            var sourceAccountNumber = getLastInput();
+
+            var sourceAccount = bankAccountService.getBankAccount(getUser().getId(), sourceAccountNumber);
+
+            printPrompt("Enter Destination Bank Account No.: ");
+            var destinationAccountNumber = getLastInput();
+
+            var destinationAccount = bankAccountService.getBankAccount(null, destinationAccountNumber);
+
+            double amount = getValidatedAmount("Enter Amount to Transfer: ", true);
+
+            var transferTransaction = new TransactionDto(
+                    TransactionTypeDto.TRANSFER,
+                    amount,
+                    LocalDateTime.now(),
+                    sourceAccount,
+                    destinationAccount
+            );
+
+            printPrompt("Enter Description (Optional): ");
+            String description = getLastInput();
+
+            if (!description.isBlank()) {
+                transferTransaction.setDescription(description);
+            }
+
+            getServiceManager().getTransactionService().createTransaction(transferTransaction, sourceAccount, destinationAccount);
+            MessageHandler.printMessage("Transfer Transaction created successfully.");
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e);
+        }
+    }
+
+    private double getValidatedAmount(String promptMessage, boolean isPositive) {
+        while (true) {
+            printPrompt(promptMessage);
+            try {
+                String input = getLastInput().replace(",", ".");
+                double amount = Double.parseDouble(input);
+
+                if ((isPositive && amount <= 0) || (!isPositive && amount >= 0)) {
+                    throw new IllegalArgumentException("Amount must be " + (isPositive ? "positive." : "negative."));
+                }
+                return amount;
+            } catch (NumberFormatException e) {
+                MessageHandler.printError("Invalid input. Please enter a valid number.");
+            } catch (IllegalArgumentException e) {
+                MessageHandler.printError(e.getMessage());
+            }
+        }
     }
 }

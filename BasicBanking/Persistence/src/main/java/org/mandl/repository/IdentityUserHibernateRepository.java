@@ -22,38 +22,14 @@ public class IdentityUserHibernateRepository
     }
 
     public IdentityUser getLoginUser(String username) {
-        var identityUser = session.createQuery(
+        return session.createQuery(
                         "FROM IdentityUser WHERE username = :username", IdentityUser.class)
                 .setParameter("username", username)
                 .uniqueResult();
-        return identityUser;
     }
 
     @Override
     public void update(IdentityUser entity) {
         throw new UnsupportedOperationException("Transactions can not be updated");
-    }
-
-    @Override
-    protected void VerifyEntityOwnerShip(IdentityUser entity) {
-        if (entity == null) {
-            throw new IllegalStateException("Entity is null");
-        }
-
-        boolean isOwner = session.createQuery(
-                        """
-                        SELECT COUNT(i) > 0
-                        FROM IdentityUser i
-                        WHERE i.id = :identityUserId
-                        AND i.id = :userId
-                        """,
-                        Boolean.class)
-                .setParameter("identityUserId", entity.getId())
-                .setParameter("userId", context.getUserId())
-                .uniqueResult();
-
-        if (!isOwner) {
-            throw new IllegalStateException("User is not allowed to access this identity");
-        }
     }
 }

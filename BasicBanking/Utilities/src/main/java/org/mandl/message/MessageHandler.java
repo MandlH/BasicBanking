@@ -22,6 +22,12 @@ public class MessageHandler {
     }
 
     public static void printMessages(List<String> messages) {
+        printMessagesWithoutWaitForAction(messages);
+        System.out.println("Press Enter to continue...");
+        scanner.nextLine();
+    }
+
+    public static void printMessagesWithoutWaitForAction(List<String> messages) {
         if (messages == null || messages.isEmpty()) {
             System.out.println("No messages to display.");
             return;
@@ -41,11 +47,7 @@ public class MessageHandler {
             System.out.printf("%s%s%s\n", padding, message, padding);
         }
         System.out.println(border);
-
-        System.out.println("Press Enter to continue...");
-        scanner.nextLine();
     }
-
 
     public static void printHeader(String title) {
         int borderLength = title.length() + 6;

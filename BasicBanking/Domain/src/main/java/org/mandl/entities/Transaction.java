@@ -24,12 +24,12 @@ public class Transaction implements BaseEntity {
     @Column(nullable = false)
     private LocalDateTime transactionDate;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn
     private BankAccount bankAccountFrom;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn
     private BankAccount bankAccountTo;
 
     @Column(length = 100)

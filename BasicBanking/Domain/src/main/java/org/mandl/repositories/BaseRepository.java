@@ -7,4 +7,5 @@ public interface BaseRepository<T> {
     void delete(T entity);
     void update(T entity);
     T findById(UUID id);
+    T merge(T entity);
 }

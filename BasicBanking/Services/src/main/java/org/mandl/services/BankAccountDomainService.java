@@ -73,11 +73,7 @@ final class BankAccountDomainService
             var bankAccount = bankAccountRepository.findByAccountNumber(accountNumber);
 
             if (bankAccount == null) {
-                return null;
-            }
-
-            if (!bankAccount.getOwner().getId().equals(userId)) {
-                return null;
+                throw new ServiceException("Bank account not found for account number: " + accountNumber);
             }
 
             return BankAccountMapper.INSTANCE.domainToDto(bankAccount);

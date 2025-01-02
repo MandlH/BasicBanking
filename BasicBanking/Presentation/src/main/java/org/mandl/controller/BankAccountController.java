@@ -55,17 +55,7 @@ public class BankAccountController extends BaseController {
                     .getBankAccountService()
                     .getAllBankAccountsByOwnerId(getUser().getId());
 
-            var message = Stream.concat(
-                            Stream.of(String.format(
-                                    "| %-15s | %-12s | %-10s |",
-                                    "Account No.", "Balance", "Type"
-                            )),
-                            bankAccounts.stream()
-                                    .map(BankAccountDto::toString)
-                    )
-                    .toList();
-
-            MessageHandler.printMessages(message);
+            PartialController.PrintBankAccounts(bankAccounts, true);
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }

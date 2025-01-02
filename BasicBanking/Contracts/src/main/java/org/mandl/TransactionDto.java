@@ -12,6 +12,19 @@ public class TransactionDto {
     private BankAccountDto bankAccountTo;
     private String description;
 
+    public TransactionDto(
+            TransactionTypeDto transactionType,
+            double amount,
+            LocalDateTime transactionDate,
+            BankAccountDto bankAccountFrom,
+            BankAccountDto bankAccountTo){
+        this.transactionType = transactionType;
+        this.amount = amount;
+        this.transactionDate = transactionDate;
+        this.bankAccountFrom = bankAccountFrom;
+        this.bankAccountTo = bankAccountTo;
+    }
+
     public UUID getId() {
         return id;
     }
@@ -71,7 +84,7 @@ public class TransactionDto {
     @Override
     public String toString() {
         return String.format(
-                "| %-15s | %-12s | %-20s | %-20s | %12.2f |",
+                "| %-23s | %-12s | %-20s | %-20s | %12.2f |",
                 transactionDate, transactionType,
                 bankAccountFrom != null ? bankAccountFrom.getAccountNumber() : "N/A",
                 bankAccountTo != null ? bankAccountTo.getAccountNumber() : "N/A",
