@@ -1,8 +1,12 @@
-package org.mandl;
+package org.mandl.services;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hibernate.service.spi.ServiceException;
+import org.mandl.IdentityUserService;
+import org.mandl.LoggingHandler;
+import org.mandl.RoleDto;
+import org.mandl.UserDto;
 import org.mandl.exceptions.AuthenticationException;
 import org.mandl.identity.IdentityRole;
 import org.mandl.identity.IdentityUser;

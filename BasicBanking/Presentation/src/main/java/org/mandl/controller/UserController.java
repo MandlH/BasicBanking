@@ -5,6 +5,7 @@ import org.mandl.exceptions.ExceptionHandler;
 import org.mandl.message.MessageHandler;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UserController extends BaseController {
@@ -50,7 +51,7 @@ public class UserController extends BaseController {
             displayPrompt("Enter new password: ");
             String newPassword = getLastInput();
             getServiceManager().getIdentityUserService().resetPassword(getUser().getId(), newPassword);
-            MessageHandler.printMessage("Password reset successfully.");
+            MessageHandler.printMessage("Password reset successfully.\n You have been logged out!");
             ControllerFactory.getAuthenticationController(getServiceManager()).start();
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
@@ -65,7 +66,7 @@ public class UserController extends BaseController {
             String username = getLastInput();
             if (username.equals(getUser().getUsername())) {
                 getServiceManager().getIdentityUserService().delete(getUser().getId());
-                MessageHandler.printMessage("Account deleted successfully.");
+                MessageHandler.printMessage("Account deleted successfully.\n You have been logged out!");
                 ControllerFactory.getAuthenticationController(getServiceManager()).start();
                 return;
             }
@@ -80,6 +81,8 @@ public class UserController extends BaseController {
             flushConsole();
             MessageHandler.printHeader("User Account Information");
             UserDto user = getServiceManager().getIdentityUserService().getUser(getUser().getId());
+            List<BankAccountDto> bankAccounts = getServiceManager().getBankAccountService().getAllBankAccountsByOwnerId(getUser().getId());
+            user.setBankAccounts(bankAccounts);
             MessageHandler.printMessage(user.toString());
         } catch (Exception e) {
             ExceptionHandler.handleException(e);

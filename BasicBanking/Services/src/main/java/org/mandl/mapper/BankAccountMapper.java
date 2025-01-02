@@ -3,7 +3,6 @@ package org.mandl.mapper;
 import org.mandl.BankAccountDto;
 import org.mandl.entities.BankAccount;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper

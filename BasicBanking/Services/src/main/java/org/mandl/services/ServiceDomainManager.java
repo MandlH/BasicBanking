@@ -1,8 +1,11 @@
-package org.mandl;
+package org.mandl.services;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
+import org.mandl.BankAccountService;
+import org.mandl.IdentityUserService;
+import org.mandl.ServiceManager;
 
 @ApplicationScoped
 @Default

@@ -10,7 +10,7 @@ import java.util.Map;
 public class AuthenticationController extends BaseController {
 
     private final String LOGIN = "Login";
-    private final String REGISTER = "REGISTER";
+    private final String REGISTER = "Register";
 
     private AuthenticationController(ServiceManager serviceManager) {
         super(null, serviceManager);

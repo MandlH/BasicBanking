@@ -1,8 +1,11 @@
-package org.mandl;
+package org.mandl.services;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hibernate.service.spi.ServiceException;
+import org.mandl.BankAccountDto;
+import org.mandl.BankAccountService;
+import org.mandl.LoggingHandler;
 import org.mandl.entities.BankAccount;
 import org.mandl.mapper.BankAccountMapper;
 import org.mandl.repositories.BankAccountRepository;
