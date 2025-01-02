@@ -31,12 +31,12 @@ public abstract class BaseController implements Controller {
         System.out.flush();
     }
 
-    public void displayPrompt(String prefix) {
+    public void printPrompt(String prefix) {
         System.out.print(PROMPT + prefix);
         lastInput = scanner.nextLine().trim();
     }
 
-    public void displayPrompt() {
+    public void printPrompt() {
         System.out.print(PROMPT);
         lastInput = scanner.nextLine().trim();
     }
@@ -52,7 +52,7 @@ public abstract class BaseController implements Controller {
         while (true) {
             flushConsole();
             displayActions();
-            displayPrompt();
+            printPrompt();
 
             if (lastInput.equalsIgnoreCase("back") && user != null) {
                 break;

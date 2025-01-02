@@ -5,7 +5,6 @@ import org.mandl.exceptions.ExceptionHandler;
 import org.mandl.message.MessageHandler;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -52,7 +51,7 @@ public class BankAccountController extends BaseController {
     private void listBankAccounts() {
         try {
             MessageHandler.printHeader(LIST_BANK_ACCOUNTS);
-            List<BankAccountDto> bankAccounts = getServiceManager()
+            var bankAccounts = getServiceManager()
                     .getBankAccountService()
                     .getAllBankAccountsByOwnerId(getUser().getId());
 
@@ -77,28 +76,27 @@ public class BankAccountController extends BaseController {
             flushConsole();
             MessageHandler.printHeader(CREATE_BANK_ACCOUNT);
 
-            displayPrompt("Enter Account Number: ");
-            String accountNumber = getLastInput();
+            printPrompt("Enter Account Number: ");
+            var accountNumber = getLastInput();
 
-            // Display available account types dynamically
             StringBuilder typeOptions = new StringBuilder("Enter Type (");
-            for (BankAccountType type : BankAccountType.values()) {
+            for (var type : BankAccountTypeDto.values()) {
                 typeOptions.append(type).append(", ");
             }
             typeOptions.setLength(typeOptions.length() - 2); // Remove trailing ", "
             typeOptions.append("): ");
-            displayPrompt(typeOptions.toString());
-            String typeInput = getLastInput().toUpperCase();
+            printPrompt(typeOptions.toString());
+            var typeInput = getLastInput().toUpperCase();
 
-            BankAccountType accountType;
+            BankAccountTypeDto accountType;
             try {
-                accountType = BankAccountType.valueOf(typeInput);
+                accountType = BankAccountTypeDto.valueOf(typeInput);
             } catch (IllegalArgumentException e) {
                 MessageHandler.printMessage("Invalid account type. Please try again.");
                 return;
             }
 
-            displayPrompt("Enter Balance: ");
+            printPrompt("Enter Balance: ");
             String balanceInput = getLastInput().replace(",", ".");
             double balance = Double.parseDouble(balanceInput);
 
@@ -118,7 +116,7 @@ public class BankAccountController extends BaseController {
     private void deleteBankAccount() {
         try {
             MessageHandler.printHeader(DELETE_BANK_ACCOUNT);
-            displayPrompt("Enter Account Number: ");
+            printPrompt("Enter Account Number: ");
             var accountNumber = getLastInput();
             getServiceManager().getBankAccountService().deleteBankAccount(accountNumber);
             MessageHandler.printMessage("Bank account deleted successfully.");

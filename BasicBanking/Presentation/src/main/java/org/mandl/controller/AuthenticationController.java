@@ -47,9 +47,9 @@ public class AuthenticationController extends BaseController {
     private void startLogin() {
         flushConsole();
         MessageHandler.printHeader(LOGIN);
-        displayPrompt("Enter Username: ");
+        printPrompt("Enter Username: ");
         String username = getLastInput();
-        displayPrompt("Enter Password: ");
+        printPrompt("Enter Password: ");
         String password = getLastInput();
         validateLogin(username, password);
     }
@@ -67,9 +67,9 @@ public class AuthenticationController extends BaseController {
     private void startRegister() {
         flushConsole();
         MessageHandler.printHeader(REGISTER);
-        displayPrompt("Enter Username: ");
+        printPrompt("Enter Username: ");
         String username = getLastInput();
-        displayPrompt("Enter Password: ");
+        printPrompt("Enter Password: ");
         String password = getLastInput();
         validateRegister(username, password);
     }

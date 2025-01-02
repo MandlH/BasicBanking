@@ -1,9 +1,13 @@
 package org.mandl.controller;
 
 import org.mandl.*;
+import org.mandl.exceptions.ExceptionHandler;
+import org.mandl.message.MessageHandler;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class TransactionController extends BaseController {
 
@@ -49,9 +53,41 @@ public class TransactionController extends BaseController {
     }
 
     private void listTransactionHistory() {
+        try {
+            MessageHandler.printHeader(TRANSACTION_HISTORY);
+            printPrompt("Enter Bank Account No.: ");
+            var bankAccountNumber = getLastInput();
+            var bankAccount = getServiceManager()
+                    .getBankAccountService()
+                    .getBankAccount(getUser().getId(), bankAccountNumber);
 
+            if (bankAccount == null) {
+                MessageHandler.printError("Bank Account Not Found");
+                return;
+            }
+
+            var transactions = getServiceManager()
+                    .getTransactionService()
+                    .getTransactions(bankAccount.getId());
+
+            List<String> message = Stream.concat(
+                            Stream.of(String.format(
+                                    "| %-15s | %-12s | %-20s | %-20s | %12s |",
+                                    "Date", "Type", "From", "To", "Amount"
+                            )),
+                            transactions.stream()
+                                    .sorted((t1, t2) -> t2.getTransactionDate().compareTo(t1.getTransactionDate()))
+                                    .map(TransactionDto::toString)
+                    )
+                    .toList();
+
+            MessageHandler.printMessages(message);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e);
+        }
     }
-    
+
     private void createDepositTransaction() {
 
     }

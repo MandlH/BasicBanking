@@ -4,7 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hibernate.Session;
 import org.mandl.entities.BankAccount;
-import org.mandl.entities.BankAccountType;
 import org.mandl.identity.IdentityUser;
 import org.mandl.repositories.BankAccountRepository;
 import org.mandl.unitOfWork.UnitOfWork;
@@ -52,9 +51,10 @@ public class BankAccountHibernateRepository
         delete(bankaccount);
     }
 
-    private BankAccount findByAccountNumber(String accountNumber) {
+    @Override
+    public BankAccount findByAccountNumber(String accountNumber) {
         return session.createQuery(
-                        "FROM BankAccount WHERE accountNumber = :accountNumber", BankAccount.class)
+                        "FROM BankAccount b JOIN FETCH b.owner WHERE b.accountNumber = :accountNumber", BankAccount.class)
                 .setParameter("accountNumber", accountNumber)
                 .uniqueResult();
     }

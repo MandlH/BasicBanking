@@ -9,4 +9,5 @@ public interface BankAccountRepository extends BaseRepository<BankAccount> {
     List<BankAccount> getAllBankAccountsByOwnerId(UUID userId);
     BankAccount createBankAccount(BankAccount bankAccount);
     void deleteBankAccount(String accountNumber);
+    BankAccount findByAccountNumber(String accountNumber);
 }

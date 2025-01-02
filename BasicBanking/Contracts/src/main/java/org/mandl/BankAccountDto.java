@@ -6,10 +6,10 @@ public class BankAccountDto {
     private UUID id;
     private String accountNumber;
     private double balance;
-    private BankAccountType accountType;
+    private BankAccountTypeDto accountType;
     private UserDto owner;
 
-    public BankAccountDto(String accountNumber, double balance, BankAccountType accountType, UserDto owner) {
+    public BankAccountDto(String accountNumber, double balance, BankAccountTypeDto accountType, UserDto owner) {
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.accountType = accountType;
@@ -32,11 +32,11 @@ public class BankAccountDto {
         this.balance = balance;
     }
 
-    public BankAccountType getAccountType() {
+    public BankAccountTypeDto getAccountType() {
         return accountType;
     }
 
-    public void setAccountType(BankAccountType accountType) {
+    public void setAccountType(BankAccountTypeDto accountType) {
         this.accountType = accountType;
     }
 

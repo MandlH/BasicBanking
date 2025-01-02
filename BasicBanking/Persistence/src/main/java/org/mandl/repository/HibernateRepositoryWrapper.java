@@ -3,10 +3,7 @@ package org.mandl.repository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
-import org.mandl.repositories.BankAccountRepository;
-import org.mandl.repositories.IdentityUserRepository;
-import org.mandl.repositories.RepositoryWrapper;
-import org.mandl.repositories.UnitOfWork;
+import org.mandl.repositories.*;
 
 @ApplicationScoped
 @Default
@@ -16,15 +13,18 @@ public class HibernateRepositoryWrapper
     private final UnitOfWork unitOfWork;
     private final IdentityUserRepository userRepository;
     private final BankAccountRepository bankAccountRepository;
+    private final TransactionRepository transactionRepository;
 
     @Inject
     public HibernateRepositoryWrapper(
             UnitOfWork unitOfWork,
             IdentityUserRepository userRepository,
-            BankAccountRepository bankAccountRepository) {
+            BankAccountRepository bankAccountRepository,
+            TransactionRepository transactionRepository) {
         this.unitOfWork = unitOfWork;
         this.userRepository = userRepository;
         this.bankAccountRepository = bankAccountRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     public void beginTransaction() {
@@ -47,5 +47,10 @@ public class HibernateRepositoryWrapper
     @Override
     public BankAccountRepository getBankAccountRepository() {
         return bankAccountRepository;
+    }
+
+    @Override
+    public TransactionRepository getTransactionRepository() {
+        return transactionRepository;
     }
 }

@@ -65,4 +65,23 @@ final class BankAccountDomainService implements BankAccountService {
             throw new ServiceException("Error deleting bank account", e);
         }
     }
+
+    @Override
+    public BankAccountDto getBankAccount(UUID userId, String accountNumber) {
+        try {
+            var bankAccount = bankAccountRepository.findByAccountNumber(accountNumber);
+
+            if (bankAccount == null) {
+                return null;
+            }
+
+            if (!bankAccount.getOwner().getId().equals(userId)) {
+                return null;
+            }
+
+            return BankAccountMapper.INSTANCE.domainToDto(bankAccount);
+        } catch (Exception e) {
+            throw new ServiceException("Error checking if bank account exists", e);
+        }
+    }
 }

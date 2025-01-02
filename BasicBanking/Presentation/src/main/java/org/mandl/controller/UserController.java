@@ -48,7 +48,7 @@ public class UserController extends BaseController {
         try {
             flushConsole();
             MessageHandler.printHeader("Reset Password");
-            displayPrompt("Enter new password: ");
+            printPrompt("Enter new password: ");
             String newPassword = getLastInput();
             getServiceManager().getIdentityUserService().resetPassword(getUser().getId(), newPassword);
             MessageHandler.printMessage("Password reset successfully.\n You have been logged out!");
@@ -62,7 +62,7 @@ public class UserController extends BaseController {
         try {
             flushConsole();
             MessageHandler.printHeader("Delete User Account");
-            displayPrompt("Enter your username to confirm deletion: ");
+            printPrompt("Enter your username to confirm deletion: ");
             String username = getLastInput();
             if (username.equals(getUser().getUsername())) {
                 getServiceManager().getIdentityUserService().delete(getUser().getId());

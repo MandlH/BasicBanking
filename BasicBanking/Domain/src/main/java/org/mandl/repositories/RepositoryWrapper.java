@@ -6,4 +6,5 @@ public interface RepositoryWrapper {
     void rollbackTransaction();
     IdentityUserRepository getIdentityUserRepository();
     BankAccountRepository getBankAccountRepository();
+    TransactionRepository getTransactionRepository();
 }

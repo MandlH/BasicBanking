@@ -7,4 +7,5 @@ public interface BankAccountService {
     List<BankAccountDto> getAllBankAccountsByOwnerId(UUID ownerId);
     BankAccountDto createBankAccount(BankAccountDto bankAccountDto);
     void deleteBankAccount(String accountNumber);
+    BankAccountDto getBankAccount(UUID userId, String accountNumber);
 }
