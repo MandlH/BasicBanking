@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Table
-public class BankAccount {
+public class BankAccount implements BaseEntity {
     @Id
     @GeneratedValue
     private UUID id;

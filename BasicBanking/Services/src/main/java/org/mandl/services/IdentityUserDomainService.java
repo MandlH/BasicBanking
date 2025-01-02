@@ -7,9 +7,7 @@ import org.mandl.IdentityUserService;
 import org.mandl.LoggingHandler;
 import org.mandl.RoleDto;
 import org.mandl.UserDto;
-import org.mandl.exceptions.AuthenticationException;
 import org.mandl.identity.IdentityRole;
-import org.mandl.identity.IdentityUser;
 import org.mandl.mapper.RoleMapper;
 import org.mandl.mapper.UserMapper;
 import org.mandl.repositories.IdentityUserRepository;
@@ -19,7 +17,9 @@ import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
-final class IdentityUserDomainService implements IdentityUserService {
+final class IdentityUserDomainService
+        implements IdentityUserService {
+
     private static final LoggingHandler logger = LoggingHandler.getLogger(BankAccountDomainService.class);
     private final IdentityUserRepository identityUserRepository;
     private final RepositoryWrapper repositoryWrapper;
@@ -67,57 +67,12 @@ final class IdentityUserDomainService implements IdentityUserService {
             if (user == null) {
                 throw new IllegalArgumentException("User not found.");
             }
-            user.setPassword(hashPassword(password));
+            user.setPassword(password);
             identityUserRepository.update(user);
             repositoryWrapper.commitTransaction();
         } catch (Exception e) {
             logger.error("Unexpected error while resetting password for user ID: " + id, e);
             throw new ServiceException("An unexpected error occurred while resetting the password.", e);
-        }
-    }
-
-
-    @Override
-    public UserDto registerUser(String username, String password) throws AuthenticationException {
-        try {
-            repositoryWrapper.beginTransaction();
-            if (identityUserRepository.findByUsername(username) != null) {
-                throw new AuthenticationException("Username already exists!");
-            }
-
-            var newUser = new IdentityUser(username, hashPassword(password));
-            identityUserRepository.save(newUser);
-            repositoryWrapper.commitTransaction();
-            var savedUser = identityUserRepository.findByUsername(username);
-            if (savedUser == null) {
-                logger.error("User registration failed: Unable to retrieve saved user with username " + username);
-                throw new ServiceException("An unexpected error occurred: User registration verification failed.");
-            }
-
-            return UserMapper.INSTANCE.domainToDto(savedUser);
-        } catch (AuthenticationException e) {
-            throw e;
-
-        } catch (Exception e) {
-            logger.error("An unexpected error occurred while registering user " + username, e);
-            throw new ServiceException("An unexpected error occurred while registering. Please try again.", e);
-        }
-    }
-
-
-    @Override
-    public UserDto loginUser(String username, String password) throws AuthenticationException {
-        try {
-            var identityUser = identityUserRepository.findByUsername(username);
-            if (identityUser == null || !verifyPassword(password, identityUser.getPassword())) {
-                throw new AuthenticationException("Username or Password are wrong!");
-            }
-            return UserMapper.INSTANCE.domainToDto(identityUser);
-        } catch (AuthenticationException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error("An unexpected error occurred while logining user " + username, e);
-            return null;
         }
     }
 
@@ -155,20 +110,10 @@ final class IdentityUserDomainService implements IdentityUserService {
 
     @Override
     public UserDto getUser(String username) {
-        var user = identityUserRepository.findByUsername(username);
+        var user = identityUserRepository.getLoginUser(username);
         if (user == null) {
             throw new IllegalArgumentException("User not found.");
         }
         return UserMapper.INSTANCE.domainToDto(user);
-    }
-
-    private String hashPassword(String password) {
-        // Implement password hashing
-        return password; // Placeholder
-    }
-
-    private boolean verifyPassword(String password, String hashedPassword) {
-        // Implement password verification
-        return password.equals(hashedPassword); // Placeholder
     }
 }

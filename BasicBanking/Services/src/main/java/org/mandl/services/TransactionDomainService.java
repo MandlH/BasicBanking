@@ -1,13 +1,11 @@
 package org.mandl.services;
 
 import jakarta.inject.Inject;
-import org.h2.mvstore.tx.TransactionMap;
 import org.hibernate.service.spi.ServiceException;
 import org.mandl.LoggingHandler;
 import org.mandl.TransactionDto;
 import org.mandl.TransactionService;
 import org.mandl.TransactionTypeDto;
-import org.mandl.mapper.BankAccountMapper;
 import org.mandl.mapper.TransactionMapper;
 import org.mandl.repositories.RepositoryWrapper;
 import org.mandl.repositories.TransactionRepository;
@@ -15,7 +13,9 @@ import org.mandl.repositories.TransactionRepository;
 import java.util.List;
 import java.util.UUID;
 
-final class TransactionDomainService implements TransactionService {
+final class TransactionDomainService
+        implements TransactionService {
+
     private static final LoggingHandler logger = LoggingHandler.getLogger(BankAccountDomainService.class);
     private final TransactionRepository transactionRepository;
     private final RepositoryWrapper repositoryWrapper;

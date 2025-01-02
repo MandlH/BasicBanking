@@ -2,12 +2,13 @@ package org.mandl.entities;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table
-public class Transaction {
+public class Transaction implements BaseEntity {
 
     @Id
     @GeneratedValue

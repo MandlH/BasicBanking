@@ -3,26 +3,28 @@ package org.mandl.services;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
-import org.mandl.BankAccountService;
-import org.mandl.IdentityUserService;
-import org.mandl.ServiceManager;
-import org.mandl.TransactionService;
+import org.mandl.*;
 
 @ApplicationScoped
 @Default
-public class ServiceDomainManager implements ServiceManager {
+public class ServiceDomainManager
+        implements ServiceManager {
+
     private final IdentityUserService userService;
     private final BankAccountService bankAccountService;
     private final TransactionService transactionService;
+    private final AuthenticationDomainService authenticationService;
 
     @Inject
     public ServiceDomainManager(
             IdentityUserService userService,
             BankAccountService bankAccountService,
-            TransactionService transactionService) {
+            TransactionService transactionService,
+            AuthenticationService authenticationService, AuthenticationDomainService authenticationDomainService) {
         this.userService = userService;
         this.bankAccountService = bankAccountService;
         this.transactionService = transactionService;
+        this.authenticationService = authenticationDomainService;
     }
 
     @Override
@@ -38,5 +40,10 @@ public class ServiceDomainManager implements ServiceManager {
     @Override
     public TransactionService getTransactionService() {
         return transactionService;
+    }
+
+    @Override
+    public AuthenticationService getAuthenticationService() {
+        return authenticationService;
     }
 }

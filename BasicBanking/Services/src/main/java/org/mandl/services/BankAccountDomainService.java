@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
-final class BankAccountDomainService implements BankAccountService {
+final class BankAccountDomainService
+        implements BankAccountService {
     private static final LoggingHandler logger = LoggingHandler.getLogger(BankAccountDomainService.class);
     private final BankAccountRepository bankAccountRepository;
     private final RepositoryWrapper repositoryWrapper;

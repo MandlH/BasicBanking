@@ -1,5 +1,7 @@
 package org.mandl.repositories;
 
+import java.util.UUID;
+
 public interface RepositoryWrapper {
     void beginTransaction();
     void commitTransaction();

@@ -2,6 +2,7 @@ package org.mandl.identity;
 
 import jakarta.persistence.*;
 import org.mandl.entities.BankAccount;
+import org.mandl.entities.BaseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Table
-public class IdentityUser {
+public class IdentityUser implements BaseEntity {
 
     @Id
     @GeneratedValue

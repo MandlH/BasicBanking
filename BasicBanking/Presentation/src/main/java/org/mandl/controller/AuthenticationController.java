@@ -56,7 +56,7 @@ public class AuthenticationController extends BaseController {
 
     private void validateLogin(String username, String password) {
         try {
-            UserDto user = getServiceManager().getIdentityUserService().loginUser(username, password);
+            UserDto user = getServiceManager().getAuthenticationService().loginUser(username, password);
             Controller navigationController = ControllerFactory.getNavigationController(user, getServiceManager());
             navigationController.start();
         } catch (Exception e) {
@@ -76,7 +76,7 @@ public class AuthenticationController extends BaseController {
 
     private void validateRegister(String username, String password) {
         try {
-            UserDto user = getServiceManager().getIdentityUserService().registerUser(username, password);
+            UserDto user = getServiceManager().getAuthenticationService().registerUser(username, password);
             Controller navigationController = ControllerFactory.getNavigationController(user, getServiceManager());
             navigationController.start();
         } catch (Exception e) {
