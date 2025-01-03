@@ -17,7 +17,6 @@ import java.util.UUID;
 final class TransactionDomainService
         implements TransactionService {
 
-    private static final LoggingHandler logger = LoggingHandler.getLogger(BankAccountDomainService.class);
     private final TransactionRepository transactionRepository;
     private final BankAccountRepository bankAccountRepository;
     private final RepositoryWrapper repositoryWrapper;

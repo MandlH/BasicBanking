@@ -20,7 +20,6 @@ import java.util.UUID;
 final class IdentityUserDomainService
         implements IdentityUserService {
 
-    private static final LoggingHandler logger = LoggingHandler.getLogger(BankAccountDomainService.class);
     private final IdentityUserRepository identityUserRepository;
     private final RepositoryWrapper repositoryWrapper;
 

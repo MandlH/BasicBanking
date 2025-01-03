@@ -19,7 +19,6 @@ import java.util.UUID;
 public class AuthenticationDomainService
         implements AuthenticationService {
 
-    private static final LoggingHandler logger = LoggingHandler.getLogger(BankAccountDomainService.class);
     private final IdentityUserRepository identityUserRepository;
     private final RepositoryWrapper repositoryWrapper;
     private final UserContext userContext;
@@ -82,10 +81,9 @@ public class AuthenticationDomainService
     private void initializeUserContext(UUID userId) {
         try {
             userContext.initialize(userId);
-        } catch (IllegalStateException e) {
-            logger.error("UserContext initialization failed: " + e.getMessage(), e);
+        } catch (Exception e) {
             userContext.reset();
-            throw new ServiceException("Failed to initialize user context.", e);
+            throw new IllegalStateException("Failed to initialize user context.", e);
         }
     }
 
