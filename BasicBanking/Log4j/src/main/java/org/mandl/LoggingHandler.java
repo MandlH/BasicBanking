@@ -19,6 +19,10 @@ public class LoggingHandler {
         logger.info(message);
     }
 
+    public void info(String message, Throwable throwable) {
+        logger.info(message, throwable);
+    }
+
     public void warn(String message) {
         logger.warn(message);
     }

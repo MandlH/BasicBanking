@@ -21,6 +21,9 @@ public class IdentityUser implements BaseEntity {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private String salt;
+
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BankAccount> accounts;
 
@@ -32,11 +35,11 @@ public class IdentityUser implements BaseEntity {
 
     }
 
-    public IdentityUser(String username, String password) {
+    public IdentityUser(String username, String password, String salt) {
         validateUsername(username);
-        validatePassword(password);
         this.username = username;
         this.password = password;
+        this.salt = salt;
     }
 
     public boolean isAuthorized(List<IdentityRole> requiredRoles) {
@@ -44,21 +47,6 @@ public class IdentityUser implements BaseEntity {
             return true;
         }
         return roles != null && roles.stream().anyMatch(role -> requiredRoles.contains(role.getName()));
-    }
-
-    public static void validatePassword(String password) {
-        // Password is not always required therefore it can be null after authentication!
-        if (password == null) {
-            return;
-        }
-
-        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
-
-        if (!password.matches(passwordRegex)) {
-            throw new IllegalArgumentException(
-                    "Password must have at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character."
-            );
-        }
     }
 
     public static void validateUsername(String username) {
@@ -97,7 +85,6 @@ public class IdentityUser implements BaseEntity {
     }
 
     public void setPassword(String password) {
-        validatePassword(password);
         this.password = password;
     }
 
@@ -125,5 +112,13 @@ public class IdentityUser implements BaseEntity {
 
     public void setRoles(List<IdentityRole> roles) {
         this.roles = roles;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 }

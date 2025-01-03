@@ -1,8 +1,9 @@
 package org.mandl.entities;
 
 import jakarta.persistence.*;
+import org.mandl.converters.BigDecimalEncryptionConverter;
+import org.mandl.converters.StringEncryptionConverter;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -15,11 +16,13 @@ public class Transaction implements BaseEntity {
     @GeneratedValue
     private UUID id;
 
+    // Converter Conflicts with Enumerated would need other approach.
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionType transactionType;
 
     @Column(nullable = false)
+    @Convert(converter = BigDecimalEncryptionConverter.class)
     private BigDecimal amount;
 
     @Column(nullable = false)
@@ -27,13 +30,16 @@ public class Transaction implements BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
+    @Convert(converter = StringEncryptionConverter.class)
     private BankAccount bankAccountFrom;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
+    @Convert(converter = StringEncryptionConverter.class)
     private BankAccount bankAccountTo;
 
     @Column(length = 100)
+    @Convert(converter = StringEncryptionConverter.class)
     private String description;
 
     public BankAccount getBankAccountFrom() {
@@ -82,5 +88,13 @@ public class Transaction implements BaseEntity {
 
     public void setTransactionDate(LocalDateTime transactionDate) {
         this.transactionDate = transactionDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

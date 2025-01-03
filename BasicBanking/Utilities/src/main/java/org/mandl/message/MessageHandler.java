@@ -109,7 +109,7 @@ public class MessageHandler {
     }
 
     public static void printInfo(Exception e) {
-        logger.info(e.getMessage());
+        logger.info(e.getMessage(), e);
         printExceptionMessage(e.getMessage());
     }
 }

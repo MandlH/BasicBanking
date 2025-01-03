@@ -12,6 +12,8 @@ import org.mandl.repositories.IdentityUserRepository;
 import org.mandl.repositories.RepositoryWrapper;
 import org.mandl.repositories.UserContext;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -23,7 +25,9 @@ public class AuthenticationDomainService
     private final UserContext userContext;
 
     @Inject
-    public AuthenticationDomainService(RepositoryWrapper repositoryWrapper, UserContext userContext) {
+    public AuthenticationDomainService(
+            RepositoryWrapper repositoryWrapper,
+            UserContext userContext) {
         this.repositoryWrapper = repositoryWrapper;
         this.userContext = userContext;
         this.identityUserRepository = repositoryWrapper.getIdentityUserRepository();
@@ -37,7 +41,10 @@ public class AuthenticationDomainService
                 throw new AuthenticationException("Username already exists!");
             }
 
-            var newUser = new IdentityUser(username, password);
+            var salt = PasswordService.generateSalt();
+            var hashedPassword = PasswordService.hashPassword(password, salt);
+
+            var newUser = new IdentityUser(username, hashedPassword, salt);
             identityUserRepository.save(newUser);
             repositoryWrapper.commitTransaction();
 
@@ -48,7 +55,9 @@ public class AuthenticationDomainService
 
             initializeUserContext(savedUser.getId());
             return UserMapper.INSTANCE.domainToDto(savedUser);
-        } catch (AuthenticationException | IllegalArgumentException | ServiceException e) {
+        }catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new AuthenticationException("Registration Failed!");
+        }  catch (AuthenticationException | IllegalArgumentException | ServiceException e) {
             repositoryWrapper.rollbackTransaction();
             throw e;
         }
@@ -56,20 +65,31 @@ public class AuthenticationDomainService
 
     @Override
     public UserDto loginUser(String username, String password) throws AuthenticationException {
-        var identityUser = identityUserRepository.getLoginUser(username);
-        if (identityUser == null || !verifyPassword(password, identityUser.getPassword())) {
+        try {
+            var identityUser = identityUserRepository.getLoginUser(username);
+
+            if (identityUser == null) {
+                throw new AuthenticationException("Username or Password are wrong!");
+            }
+
+            var isPasswordVerified = PasswordService.verifyPassword(password, identityUser.getSalt(), identityUser.getPassword());
+
+            if (!isPasswordVerified) {
+                throw new AuthenticationException("Username or Password are wrong!");
+            }
+
+            initializeUserContext(identityUser.getId());
+
+            var user = UserMapper.INSTANCE.domainToDto(identityUser);
+
+            if (user == null) {
+                throw new ServiceException("User login verification failed.");
+            }
+
+            return user;
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new AuthenticationException("Username or Password are wrong!");
         }
-
-        initializeUserContext(identityUser.getId());
-
-        var user = UserMapper.INSTANCE.domainToDto(identityUser);
-
-        if (user == null) {
-            throw new ServiceException("User login verification failed.");
-        }
-
-        return user;
     }
 
     @Override
@@ -84,9 +104,5 @@ public class AuthenticationDomainService
             userContext.reset();
             throw new IllegalStateException("Failed to initialize user context.", e);
         }
-    }
-
-    private boolean verifyPassword(String password, String hashedPassword) {
-        return password.equals(hashedPassword);
     }
 }

@@ -57,18 +57,25 @@ final class TransactionDomainService
     public void createTransaction(TransactionDto transactionDto, String bankAccountNumberFrom, String bankAccountNumberTo) {
         try {
             var transaction = TransactionMapper.INSTANCE.dtoToDomain(transactionDto);
-            var bankAccountFrom = loadOrValidateBankAccount(bankAccountNumberFrom);
-            var bankAccountTo = loadOrValidateBankAccount(bankAccountNumberTo);
+            BankAccount bankAccountFrom;
+            BankAccount bankAccountTo;
 
             repositoryWrapper.beginTransaction();
             switch (transactionDto.getTransactionType()) {
-                case TRANSFER -> executeTransferTransaction(transaction, bankAccountFrom, bankAccountTo);
-                case WITHDRAWAL -> executeWithdrawalTransaction(transaction, bankAccountFrom);
-                case DEPOSIT -> executeDepositTransaction(transaction, bankAccountTo);
+                case TRANSFER:
+                    bankAccountFrom = loadOrValidateBankAccount(bankAccountNumberFrom);
+                    bankAccountTo = loadOrValidateBankAccount(bankAccountNumberTo);
+                    executeTransferTransaction(transaction, bankAccountFrom, bankAccountTo);
+                    break;
+                case WITHDRAWAL:
+                    bankAccountFrom = loadOrValidateBankAccount(bankAccountNumberFrom);
+                    executeWithdrawalTransaction(transaction, bankAccountFrom);
+                    break;
+                case DEPOSIT:
+                    bankAccountTo = loadOrValidateBankAccount(bankAccountNumberTo);
+                    executeDepositTransaction(transaction, bankAccountTo);
             }
-            repositoryWrapper.commitTransaction();
 
-            repositoryWrapper.beginTransaction();
             transactionRepository.save(transaction);
             repositoryWrapper.commitTransaction();
         } catch (ServiceException e) {
