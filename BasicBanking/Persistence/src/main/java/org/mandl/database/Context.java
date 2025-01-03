@@ -1,7 +1,6 @@
 package org.mandl.database;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.mandl.repositories.UserContext;
 
 import java.util.UUID;

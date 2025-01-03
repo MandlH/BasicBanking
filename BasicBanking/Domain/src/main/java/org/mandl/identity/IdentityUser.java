@@ -30,16 +30,49 @@ public class IdentityUser implements BaseEntity {
     private List<IdentityRole> roles;
 
     public IdentityUser() {
-        this.accounts = new ArrayList<>();
+
     }
 
     public IdentityUser(String username, String password) {
+        validateUsername(username);
+        validatePassword(password);
         this.username = username;
         this.password = password;
     }
 
-    public static IdentityUser create(String username, String password) {
-        return new IdentityUser(username, password);
+    public boolean isAuthorized(List<IdentityRole> requiredRoles) {
+        if (requiredRoles == null || requiredRoles.isEmpty()) {
+            return true;
+        }
+        return roles != null && roles.stream().anyMatch(role -> requiredRoles.contains(role.getName()));
+    }
+
+    public static void validatePassword(String password) {
+        if (password == null) {
+            throw new IllegalArgumentException("Password cannot be null.");
+        }
+
+        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
+
+        if (!password.matches(passwordRegex)) {
+            throw new IllegalArgumentException(
+                    "Password must have at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character."
+            );
+        }
+    }
+
+    public static void validateUsername(String username) {
+        if (username == null) {
+            throw new IllegalArgumentException("Username cannot be null.");
+        }
+
+        String usernameRegex = "^[a-zA-Z0-9]{3,20}$";
+
+        if (!username.matches(usernameRegex)) {
+            throw new IllegalArgumentException(
+                    "Invalid username! Username must be 3-20 characters long and alphanumeric only."
+            );
+        }
     }
 
     public UUID getId() {
@@ -55,6 +88,7 @@ public class IdentityUser implements BaseEntity {
     }
 
     public void setUsername(String username) {
+        validateUsername(username);
         this.username = username;
     }
 
@@ -63,6 +97,7 @@ public class IdentityUser implements BaseEntity {
     }
 
     public void setPassword(String password) {
+        validatePassword(password);
         this.password = password;
     }
 
@@ -90,12 +125,5 @@ public class IdentityUser implements BaseEntity {
 
     public void setRoles(List<IdentityRole> roles) {
         this.roles = roles;
-    }
-
-    public boolean isAuthorized(List<IdentityRole> requiredRoles) {
-        if (requiredRoles == null || requiredRoles.isEmpty()) {
-            return true;
-        }
-        return roles != null && roles.stream().anyMatch(role -> requiredRoles.contains(role.getName()));
     }
 }

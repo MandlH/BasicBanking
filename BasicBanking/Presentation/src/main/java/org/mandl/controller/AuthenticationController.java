@@ -22,7 +22,7 @@ public class AuthenticationController extends BaseController {
 
     @Override
     protected void execute() {
-        String action = getOptions().get(getLastInput());
+        String action = getOptions().get(lastInput);
         if (action == null) return;
 
         switch (action) {
@@ -45,39 +45,29 @@ public class AuthenticationController extends BaseController {
     }
 
     private void startLogin() {
-        flushConsole();
-        MessageHandler.printHeader(LOGIN);
-        printPrompt("Enter Username: ");
-        String username = getLastInput();
-        printPrompt("Enter Password: ");
-        String password = getLastInput();
-        validateLogin(username, password);
-    }
-
-    private void validateLogin(String username, String password) {
         try {
-            UserDto user = getServiceManager().getAuthenticationService().loginUser(username, password);
-            Controller navigationController = ControllerFactory.getNavigationController(user, getServiceManager());
+            MessageHandler.printHeader(LOGIN);
+            printPrompt("Enter Username: ");
+            var username = lastInput;
+            printPrompt("Enter Password: ");
+            var password = lastInput;
+            var user = serviceManager.getAuthenticationService().loginUser(username, password);
+            var navigationController = ControllerFactory.getNavigationController(user, serviceManager);
             navigationController.start();
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e);
+        } catch (Exception ex) {
+            ExceptionHandler.handleException(ex);
         }
     }
 
     private void startRegister() {
-        flushConsole();
-        MessageHandler.printHeader(REGISTER);
-        printPrompt("Enter Username: ");
-        String username = getLastInput();
-        printPrompt("Enter Password: ");
-        String password = getLastInput();
-        validateRegister(username, password);
-    }
-
-    private void validateRegister(String username, String password) {
         try {
-            UserDto user = getServiceManager().getAuthenticationService().registerUser(username, password);
-            Controller navigationController = ControllerFactory.getNavigationController(user, getServiceManager());
+            MessageHandler.printHeader(REGISTER);
+            printPrompt("Enter Username: ");
+            var username = lastInput;
+            printPrompt("Enter Password: ");
+            var password = lastInput;
+            var user = serviceManager.getAuthenticationService().registerUser(username, password);
+            var navigationController = ControllerFactory.getNavigationController(user, serviceManager);
             navigationController.start();
         } catch (Exception e) {
             ExceptionHandler.handleException(e);

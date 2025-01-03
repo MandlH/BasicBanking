@@ -8,13 +8,13 @@ import java.util.Map;
 import java.util.Scanner;
 
 public abstract class BaseController implements Controller {
-    private final Scanner scanner = new Scanner(System.in);
-    private final UserDto user;
-    private String lastInput;
+    protected final Scanner scanner = new Scanner(System.in);
+    protected final ServiceManager serviceManager;
+    protected final LoggingHandler logger = LoggingHandler.getLogger(BaseController.class);
+    protected final UserDto user;
+    protected String lastInput;
     private final String PROMPT = "> ";
     private final List<RoleDto> allowedRoles;
-    private final ServiceManager serviceManager;
-    private final LoggingHandler logger = LoggingHandler.getLogger(BaseController.class);
 
     protected BaseController(UserDto user, ServiceManager serviceManager) {
         this(user, serviceManager, null);
@@ -24,11 +24,6 @@ public abstract class BaseController implements Controller {
         this.user = user;
         this.serviceManager = serviceManager;
         this.allowedRoles = allowedRoles;
-    }
-
-    public void flushConsole() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
     }
 
     public void printPrompt(String prefix) {
@@ -50,7 +45,6 @@ public abstract class BaseController implements Controller {
         }
 
         while (true) {
-            flushConsole();
             displayActions();
             printPrompt();
 
@@ -73,24 +67,11 @@ public abstract class BaseController implements Controller {
     protected abstract String getMenuTitle();
 
     protected void displayActions() {
-        flushConsole();
         MessageHandler.printMenu(getMenuTitle(), getOptions());
-    }
-
-    public String getLastInput() {
-        return lastInput;
-    }
-
-    public UserDto getUser() {
-        return user;
     }
 
     public List<RoleDto> getAllowedRoles() {
         return allowedRoles;
-    }
-
-    public ServiceManager getServiceManager() {
-        return serviceManager;
     }
 
     private boolean isAuthenticated() {

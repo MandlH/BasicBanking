@@ -34,7 +34,7 @@ public class UserController extends BaseController {
 
     @Override
     protected void execute() {
-        String action = getOptions().get(getLastInput());
+        var action = getOptions().get(lastInput);
         if (action == null) return;
 
         switch (action) {
@@ -46,13 +46,12 @@ public class UserController extends BaseController {
 
     private void resetPassword() {
         try {
-            flushConsole();
             MessageHandler.printHeader("Reset Password");
             printPrompt("Enter new password: ");
-            String newPassword = getLastInput();
-            getServiceManager().getIdentityUserService().resetPassword(getUser().getId(), newPassword);
+            String newPassword = lastInput;
+            serviceManager.getIdentityUserService().resetPassword(user.getId(), newPassword);
             MessageHandler.printMessage("Password reset successfully.\n You have been logged out!");
-            ControllerFactory.getAuthenticationController(getServiceManager()).start();
+            ControllerFactory.getAuthenticationController(serviceManager).start();
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }
@@ -60,14 +59,13 @@ public class UserController extends BaseController {
 
     private void deleteUserAccount() {
         try {
-            flushConsole();
             MessageHandler.printHeader("Delete User Account");
             printPrompt("Enter your username to confirm deletion: ");
-            String username = getLastInput();
-            if (username.equals(getUser().getUsername())) {
-                getServiceManager().getIdentityUserService().delete(getUser().getId());
+            String username = lastInput;
+            if (username.equals(user.getUsername())) {
+                serviceManager.getIdentityUserService().delete(user.getId());
                 MessageHandler.printMessage("Account deleted successfully.\n You have been logged out!");
-                ControllerFactory.getAuthenticationController(getServiceManager()).start();
+                ControllerFactory.getAuthenticationController(serviceManager).start();
                 return;
             }
             MessageHandler.printMessage("Wrong username. Deletion canceled.");
@@ -78,10 +76,8 @@ public class UserController extends BaseController {
 
     private void getUserAccountInformation() {
         try {
-            flushConsole();
             MessageHandler.printHeader("User Account Information");
-            UserDto user = getServiceManager().getIdentityUserService().getUser(getUser().getId());
-            List<BankAccountDto> bankAccounts = getServiceManager().getBankAccountService().getAllBankAccountsByOwnerId(getUser().getId());
+            List<BankAccountDto> bankAccounts = serviceManager.getBankAccountService().getAllBankAccountsByOwnerId(user.getId());
             user.setBankAccounts(bankAccounts);
             MessageHandler.printMessage(user.toString());
         } catch (Exception e) {

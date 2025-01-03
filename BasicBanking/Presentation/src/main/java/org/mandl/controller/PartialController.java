@@ -25,8 +25,8 @@ public class PartialController {
         }
     }
 
-    static void PrintTransactions(List<TransactionDto> transactions, boolean waitForUserAction) {
-        List<String> message = Stream.concat(
+    static void PrintTransactions(List<TransactionDto> transactions) {
+        var message = Stream.concat(
                 Stream.of(String.format(
                         "| %-23s | %-12s | %-20s | %-20s | %12s |",
                         "Date", "Type", "From", "To", "Amount"
@@ -36,10 +36,6 @@ public class PartialController {
                         .map(TransactionDto::toString)
         ).toList();
 
-        if (waitForUserAction) {
-            MessageHandler.printMessages(message);
-        } else {
-            MessageHandler.printMessagesWithoutWaitForAction(message);
-        }
+        MessageHandler.printMessages(message);
     }
 }

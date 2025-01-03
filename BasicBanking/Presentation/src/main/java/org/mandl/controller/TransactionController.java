@@ -40,7 +40,7 @@ public class TransactionController extends BaseController {
 
     @Override
     protected void execute() {
-        String action = getOptions().get(getLastInput());
+        var action = getOptions().get(lastInput);
         if (action == null) return;
 
         switch (action) {
@@ -54,19 +54,19 @@ public class TransactionController extends BaseController {
     private void listTransactionHistory() {
         try {
             MessageHandler.printHeader(TRANSACTION_HISTORY);
-            var bankAccountService = getServiceManager().getBankAccountService();
+            var bankAccountService = serviceManager.getBankAccountService();
 
-            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(getUser().getId());
+            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(user.getId());
             PartialController.PrintBankAccounts(bankAccounts, false);
 
             printPrompt("Enter Bank Account No.: ");
-            var bankAccountNumber = getLastInput();
+            var bankAccountNumber = lastInput;
 
-            var bankAccount = bankAccountService.getBankAccount(getUser().getId(), bankAccountNumber);
-            var transactions = getServiceManager()
+            var bankAccount = bankAccountService.getBankAccount(user.getId(), bankAccountNumber);
+            var transactions = serviceManager
                     .getTransactionService()
                     .getTransactions(bankAccount.getId());
-            PartialController.PrintTransactions(transactions, true);
+            PartialController.PrintTransactions(transactions);
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }
@@ -75,14 +75,14 @@ public class TransactionController extends BaseController {
     private void createDepositTransaction() {
         try {
             MessageHandler.printHeader(DEPOSIT_TRANSACTION);
-            var bankAccountService = getServiceManager().getBankAccountService();
+            var bankAccountService = serviceManager.getBankAccountService();
 
-            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(getUser().getId());
+            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(user.getId());
             PartialController.PrintBankAccounts(bankAccounts, false);
             printPrompt("Enter Bank Account No.: ");
-            var bankAccountNumber = getLastInput();
+            var bankAccountNumber = lastInput;
 
-            var bankAccount = bankAccountService.getBankAccount(getUser().getId(), bankAccountNumber);
+            var bankAccount = bankAccountService.getBankAccount(user.getId(), bankAccountNumber);
 
             double amount = getValidatedAmount("Enter Amount to Deposit: ", true);
 
@@ -95,13 +95,13 @@ public class TransactionController extends BaseController {
             );
 
             printPrompt("Enter Description (Optional): ");
-            String description = getLastInput();
+            String description = lastInput;
 
             if (!description.isBlank()){
                 depositTransaction.setDescription(description);
             }
 
-            getServiceManager().getTransactionService().createTransaction(depositTransaction, null, bankAccount);
+            serviceManager.getTransactionService().createTransaction(depositTransaction, null, bankAccount);
             MessageHandler.printMessage("Deposit Transaction created successfully.");
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
@@ -111,14 +111,14 @@ public class TransactionController extends BaseController {
     private void createWithdrawTransaction() {
         try {
             MessageHandler.printHeader(WITHDRAW_TRANSACTION);
-            var bankAccountService = getServiceManager().getBankAccountService();
+            var bankAccountService = serviceManager.getBankAccountService();
 
-            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(getUser().getId());
+            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(user.getId());
             PartialController.PrintBankAccounts(bankAccounts, false);
             printPrompt("Enter Bank Account No.: ");
-            var bankAccountNumber = getLastInput();
+            var bankAccountNumber = lastInput;
 
-            var bankAccount = bankAccountService.getBankAccount(getUser().getId(), bankAccountNumber);
+            var bankAccount = bankAccountService.getBankAccount(user.getId(), bankAccountNumber);
 
             double amount = getValidatedAmount("Enter Amount to Withdraw: ", false);
 
@@ -131,13 +131,13 @@ public class TransactionController extends BaseController {
             );
 
             printPrompt("Enter Description (Optional): ");
-            String description = getLastInput();
+            String description = lastInput;
 
             if (!description.isBlank()) {
                 withdrawTransaction.setDescription(description);
             }
 
-            getServiceManager().getTransactionService().createTransaction(withdrawTransaction, bankAccount, null);
+            serviceManager.getTransactionService().createTransaction(withdrawTransaction, bankAccount, null);
             MessageHandler.printMessage("Withdraw Transaction created successfully.");
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
@@ -147,17 +147,17 @@ public class TransactionController extends BaseController {
     private void createTransferTransaction() {
         try {
             MessageHandler.printHeader(TRANSFER_TRANSACTION);
-            var bankAccountService = getServiceManager().getBankAccountService();
+            var bankAccountService = serviceManager.getBankAccountService();
 
-            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(getUser().getId());
+            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(user.getId());
             PartialController.PrintBankAccounts(bankAccounts, false);
             printPrompt("Enter Source Bank Account No.: ");
-            var sourceAccountNumber = getLastInput();
+            var sourceAccountNumber = lastInput;
 
-            var sourceAccount = bankAccountService.getBankAccount(getUser().getId(), sourceAccountNumber);
+            var sourceAccount = bankAccountService.getBankAccount(user.getId(), sourceAccountNumber);
 
             printPrompt("Enter Destination Bank Account No.: ");
-            var destinationAccountNumber = getLastInput();
+            var destinationAccountNumber = lastInput;
 
             var destinationAccount = bankAccountService.getBankAccount(null, destinationAccountNumber);
 
@@ -172,13 +172,13 @@ public class TransactionController extends BaseController {
             );
 
             printPrompt("Enter Description (Optional): ");
-            String description = getLastInput();
+            String description = lastInput;
 
             if (!description.isBlank()) {
                 transferTransaction.setDescription(description);
             }
 
-            getServiceManager().getTransactionService().createTransaction(transferTransaction, sourceAccount, destinationAccount);
+            serviceManager.getTransactionService().createTransaction(transferTransaction, sourceAccount, destinationAccount);
             MessageHandler.printMessage("Transfer Transaction created successfully.");
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
@@ -189,7 +189,7 @@ public class TransactionController extends BaseController {
         while (true) {
             printPrompt(promptMessage);
             try {
-                String input = getLastInput().replace(",", ".");
+                String input = lastInput.replace(",", ".");
                 double amount = Double.parseDouble(input);
 
                 if ((isPositive && amount <= 0) || (!isPositive && amount >= 0)) {

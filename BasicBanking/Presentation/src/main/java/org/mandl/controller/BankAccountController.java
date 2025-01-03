@@ -6,7 +6,6 @@ import org.mandl.message.MessageHandler;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public class BankAccountController extends BaseController {
 
@@ -38,7 +37,7 @@ public class BankAccountController extends BaseController {
 
     @Override
     protected void execute() {
-        String action = getOptions().get(getLastInput());
+        var action = getOptions().get(lastInput);
         if (action == null) return;
 
         switch (action) {
@@ -51,9 +50,9 @@ public class BankAccountController extends BaseController {
     private void listBankAccounts() {
         try {
             MessageHandler.printHeader(LIST_BANK_ACCOUNTS);
-            var bankAccounts = getServiceManager()
+            var bankAccounts = serviceManager
                     .getBankAccountService()
-                    .getAllBankAccountsByOwnerId(getUser().getId());
+                    .getAllBankAccountsByOwnerId(user.getId());
 
             PartialController.PrintBankAccounts(bankAccounts, true);
         } catch (Exception e) {
@@ -63,20 +62,19 @@ public class BankAccountController extends BaseController {
 
     private void createBankAccount() {
         try {
-            flushConsole();
             MessageHandler.printHeader(CREATE_BANK_ACCOUNT);
 
             printPrompt("Enter Account Number: ");
-            var accountNumber = getLastInput();
+            var accountNumber = lastInput;
 
-            StringBuilder typeOptions = new StringBuilder("Enter Type (");
+            var typeOptions = new StringBuilder("Enter Type (");
             for (var type : BankAccountTypeDto.values()) {
                 typeOptions.append(type).append(", ");
             }
-            typeOptions.setLength(typeOptions.length() - 2); // Remove trailing ", "
+            typeOptions.setLength(typeOptions.length() - 2);
             typeOptions.append("): ");
             printPrompt(typeOptions.toString());
-            var typeInput = getLastInput().toUpperCase();
+            var typeInput = lastInput.toUpperCase();
 
             BankAccountTypeDto accountType;
             try {
@@ -87,14 +85,14 @@ public class BankAccountController extends BaseController {
             }
 
             printPrompt("Enter Balance: ");
-            String balanceInput = getLastInput().replace(",", ".");
+            var balanceInput = lastInput.replace(",", ".");
             double balance = Double.parseDouble(balanceInput);
 
             BankAccountDto bankAccountDto = new BankAccountDto(
-                    accountNumber, balance, accountType, getUser()
+                    accountNumber, balance, accountType, user
             );
 
-            getServiceManager().getBankAccountService().createBankAccount(bankAccountDto);
+            serviceManager.getBankAccountService().createBankAccount(bankAccountDto);
             MessageHandler.printMessage("Bank account created successfully.");
         } catch (NumberFormatException e) {
             MessageHandler.printMessage("Invalid balance format. Please try again.");
@@ -107,8 +105,8 @@ public class BankAccountController extends BaseController {
         try {
             MessageHandler.printHeader(DELETE_BANK_ACCOUNT);
             printPrompt("Enter Account Number: ");
-            var accountNumber = getLastInput();
-            getServiceManager().getBankAccountService().deleteBankAccount(accountNumber);
+            var accountNumber = lastInput;
+            serviceManager.getBankAccountService().deleteBankAccount(accountNumber);
             MessageHandler.printMessage("Bank account deleted successfully.");
         } catch (Exception e) {
             ExceptionHandler.handleException(e);

@@ -1,6 +1,5 @@
 package org.mandl.controller;
 
-import jdk.jshell.spi.ExecutionControl;
 import org.mandl.*;
 
 import java.util.LinkedHashMap;
@@ -38,14 +37,14 @@ public class NavigationController extends BaseController {
 
     @Override
     protected void execute() {
-        String action = getOptions().get(getLastInput());
+        var action = getOptions().get(lastInput);
         if (action == null) return;
 
         switch (action) {
-            case BANK_ACCOUNTS_MANAGEMENT -> ControllerFactory.getBankAccountController(getUser(), getServiceManager()).start();
-            case TRANSACTION_MANAGEMENT -> ControllerFactory.getTransactionController(getUser(), getServiceManager()).start();
-            case USER_ACCOUNTS_MANAGEMENT -> ControllerFactory.getUserController(getUser(), getServiceManager()).start();
-            case LOGOUT -> ControllerFactory.getAuthenticationController(getServiceManager()).start();
+            case BANK_ACCOUNTS_MANAGEMENT -> ControllerFactory.getBankAccountController(user, serviceManager).start();
+            case TRANSACTION_MANAGEMENT -> ControllerFactory.getTransactionController(user, serviceManager).start();
+            case USER_ACCOUNTS_MANAGEMENT -> ControllerFactory.getUserController(user, serviceManager).start();
+            case LOGOUT -> ControllerFactory.getAuthenticationController(serviceManager).start();
         }
     }
 }

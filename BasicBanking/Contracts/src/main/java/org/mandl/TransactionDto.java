@@ -1,5 +1,6 @@
 package org.mandl;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -83,9 +84,12 @@ public class TransactionDto {
 
     @Override
     public String toString() {
+        var dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm");
+        String formattedDate = transactionDate != null ? dateFormat.format(transactionDate) : "N/A";
+
         return String.format(
                 "| %-23s | %-12s | %-20s | %-20s | %12.2f |",
-                transactionDate, transactionType,
+                formattedDate, transactionType,
                 bankAccountFrom != null ? bankAccountFrom.getAccountNumber() : "N/A",
                 bankAccountTo != null ? bankAccountTo.getAccountNumber() : "N/A",
                 amount
