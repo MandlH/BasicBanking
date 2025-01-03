@@ -47,8 +47,9 @@ public class IdentityUser implements BaseEntity {
     }
 
     public static void validatePassword(String password) {
+        // Password is not always required therefore it can be null after authentication!
         if (password == null) {
-            throw new IllegalArgumentException("Password cannot be null.");
+            return;
         }
 
         String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";

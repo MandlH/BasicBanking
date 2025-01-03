@@ -1,13 +1,14 @@
 package org.mandl;
 
-import java.text.SimpleDateFormat;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public class TransactionDto {
     private UUID id;
     private TransactionTypeDto transactionType;
-    private double amount;
+    private BigDecimal amount;
     private LocalDateTime transactionDate;
     private BankAccountDto bankAccountFrom;
     private BankAccountDto bankAccountTo;
@@ -15,15 +16,11 @@ public class TransactionDto {
 
     public TransactionDto(
             TransactionTypeDto transactionType,
-            double amount,
-            LocalDateTime transactionDate,
-            BankAccountDto bankAccountFrom,
-            BankAccountDto bankAccountTo){
+            BigDecimal amount,
+            LocalDateTime transactionDate){
         this.transactionType = transactionType;
         this.amount = amount;
-        this.transactionDate = transactionDate;
-        this.bankAccountFrom = bankAccountFrom;
-        this.bankAccountTo = bankAccountTo;
+        this.transactionDate = transactionDate;;
     }
 
     public UUID getId() {
@@ -42,11 +39,11 @@ public class TransactionDto {
         this.transactionType = transactionType;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
@@ -84,8 +81,8 @@ public class TransactionDto {
 
     @Override
     public String toString() {
-        var dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm");
-        String formattedDate = transactionDate != null ? dateFormat.format(transactionDate) : "N/A";
+        var dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm");
+        String formattedDate = transactionDate != null ? transactionDate.format(dateTimeFormatter) : "N/A";
 
         return String.format(
                 "| %-23s | %-12s | %-20s | %-20s | %12.2f |",

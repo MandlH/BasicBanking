@@ -54,11 +54,11 @@ final class TransactionDomainService
     }
 
     @Override
-    public void createTransaction(TransactionDto transactionDto, BankAccountDto bankAccountFromDto, BankAccountDto bankAccountToDto) {
+    public void createTransaction(TransactionDto transactionDto, String bankAccountNumberFrom, String bankAccountNumberTo) {
         try {
             var transaction = TransactionMapper.INSTANCE.dtoToDomain(transactionDto);
-            var bankAccountFrom = loadOrValidateBankAccount(bankAccountFromDto);
-            var bankAccountTo = loadOrValidateBankAccount(bankAccountToDto);
+            var bankAccountFrom = loadOrValidateBankAccount(bankAccountNumberFrom);
+            var bankAccountTo = loadOrValidateBankAccount(bankAccountNumberTo);
 
             repositoryWrapper.beginTransaction();
             switch (transactionDto.getTransactionType()) {
@@ -71,19 +71,20 @@ final class TransactionDomainService
             repositoryWrapper.beginTransaction();
             transactionRepository.save(transaction);
             repositoryWrapper.commitTransaction();
-        } catch (Exception e) {
+        } catch (ServiceException e) {
+            repositoryWrapper.rollbackTransaction();
+            throw e;
+        }
+        catch (Exception e) {
             repositoryWrapper.rollbackTransaction();
             throw new ServiceException("Transaction could not be created.", e);
         }
     }
 
-    private BankAccount loadOrValidateBankAccount(BankAccountDto bankAccountDto) {
-        if (bankAccountDto == null) {
-            return null;
-        }
-        var bankAccount = bankAccountRepository.findByAccountNumber(bankAccountDto.getAccountNumber());
+    private BankAccount loadOrValidateBankAccount(String bankAccountNumber) {
+        var bankAccount = bankAccountRepository.findByAccountNumber(bankAccountNumber);
         if (bankAccount == null) {
-            throw new ServiceException("Bank account does not exist: " + bankAccountDto.getAccountNumber());
+            throw new ServiceException("Bank account does not exist: " + bankAccountNumber);
         }
         return bankAccount;
     }

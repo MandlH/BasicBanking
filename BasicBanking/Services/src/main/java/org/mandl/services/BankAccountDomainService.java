@@ -5,7 +5,6 @@ import jakarta.inject.Inject;
 import org.hibernate.service.spi.ServiceException;
 import org.mandl.BankAccountDto;
 import org.mandl.BankAccountService;
-import org.mandl.LoggingHandler;
 import org.mandl.entities.BankAccount;
 import org.mandl.mapper.BankAccountMapper;
 import org.mandl.repositories.BankAccountRepository;
@@ -42,11 +41,20 @@ final class BankAccountDomainService
     @Override
     public BankAccountDto createBankAccount(BankAccountDto bankAccountDto) {
         try {
+            var existingBankAccount = bankAccountRepository.findByAccountNumber(bankAccountDto.getAccountNumber());
+
+            if (existingBankAccount != null) {
+                throw new ServiceException("Bank account already exists");
+            }
+
             repositoryWrapper.beginTransaction();
             var bankAccount = BankAccountMapper.INSTANCE.dtoToDomain(bankAccountDto);
             bankAccountRepository.createBankAccount(bankAccount);
             repositoryWrapper.commitTransaction();
+
             return BankAccountMapper.INSTANCE.domainToDto(bankAccount);
+        } catch (ServiceException | IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             repositoryWrapper.rollbackTransaction();
             throw new ServiceException("Error creating bank account", e);

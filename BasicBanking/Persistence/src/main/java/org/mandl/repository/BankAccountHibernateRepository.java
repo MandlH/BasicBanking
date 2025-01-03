@@ -51,9 +51,8 @@ public class BankAccountHibernateRepository
     @Override
     public BankAccount findByAccountNumber(String accountNumber) {
         return session.createQuery(
-                        "FROM BankAccount b JOIN FETCH b.owner WHERE b.accountNumber = :accountNumber AND b.owner.id =: ownerId", BankAccount.class)
+                        "FROM BankAccount b WHERE b.accountNumber = :accountNumber", BankAccount.class)
                 .setParameter("accountNumber", accountNumber)
-                .setParameter("ownerId", context.getUserId())
                 .uniqueResult();
     }
 }

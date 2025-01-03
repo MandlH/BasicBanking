@@ -4,6 +4,7 @@ import org.mandl.*;
 import org.mandl.exceptions.ExceptionHandler;
 import org.mandl.message.MessageHandler;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -82,26 +83,22 @@ public class TransactionController extends BaseController {
             printPrompt("Enter Bank Account No.: ");
             var bankAccountNumber = lastInput;
 
-            var bankAccount = bankAccountService.getBankAccount(user.getId(), bankAccountNumber);
-
-            double amount = getValidatedAmount("Enter Amount to Deposit: ", true);
+            BigDecimal amount = getValidatedAmount("Enter Amount to Deposit: ", true);
 
             var depositTransaction = new TransactionDto(
                     TransactionTypeDto.DEPOSIT,
                     amount,
-                    LocalDateTime.now(),
-                    null,
-                    bankAccount
+                    LocalDateTime.now()
             );
 
             printPrompt("Enter Description (Optional): ");
             String description = lastInput;
 
-            if (!description.isBlank()){
+            if (!description.isBlank()) {
                 depositTransaction.setDescription(description);
             }
 
-            serviceManager.getTransactionService().createTransaction(depositTransaction, null, bankAccount);
+            serviceManager.getTransactionService().createTransaction(depositTransaction, null, bankAccountNumber);
             MessageHandler.printMessage("Deposit Transaction created successfully.");
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
@@ -118,16 +115,12 @@ public class TransactionController extends BaseController {
             printPrompt("Enter Bank Account No.: ");
             var bankAccountNumber = lastInput;
 
-            var bankAccount = bankAccountService.getBankAccount(user.getId(), bankAccountNumber);
-
-            double amount = getValidatedAmount("Enter Amount to Withdraw: ", false);
+            BigDecimal amount = getValidatedAmount("Enter Amount to Withdraw: ", false);
 
             var withdrawTransaction = new TransactionDto(
                     TransactionTypeDto.WITHDRAWAL,
                     amount,
-                    LocalDateTime.now(),
-                    bankAccount,
-                    null
+                    LocalDateTime.now()
             );
 
             printPrompt("Enter Description (Optional): ");
@@ -137,7 +130,7 @@ public class TransactionController extends BaseController {
                 withdrawTransaction.setDescription(description);
             }
 
-            serviceManager.getTransactionService().createTransaction(withdrawTransaction, bankAccount, null);
+            serviceManager.getTransactionService().createTransaction(withdrawTransaction, bankAccountNumber, null);
             MessageHandler.printMessage("Withdraw Transaction created successfully.");
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
@@ -154,21 +147,15 @@ public class TransactionController extends BaseController {
             printPrompt("Enter Source Bank Account No.: ");
             var sourceAccountNumber = lastInput;
 
-            var sourceAccount = bankAccountService.getBankAccount(user.getId(), sourceAccountNumber);
-
             printPrompt("Enter Destination Bank Account No.: ");
             var destinationAccountNumber = lastInput;
 
-            var destinationAccount = bankAccountService.getBankAccount(null, destinationAccountNumber);
-
-            double amount = getValidatedAmount("Enter Amount to Transfer: ", true);
+            BigDecimal amount = getValidatedAmount("Enter Amount to Transfer: ", true);
 
             var transferTransaction = new TransactionDto(
                     TransactionTypeDto.TRANSFER,
                     amount,
-                    LocalDateTime.now(),
-                    sourceAccount,
-                    destinationAccount
+                    LocalDateTime.now()
             );
 
             printPrompt("Enter Description (Optional): ");
@@ -178,25 +165,27 @@ public class TransactionController extends BaseController {
                 transferTransaction.setDescription(description);
             }
 
-            serviceManager.getTransactionService().createTransaction(transferTransaction, sourceAccount, destinationAccount);
+            serviceManager.getTransactionService().createTransaction(transferTransaction, sourceAccountNumber, destinationAccountNumber);
             MessageHandler.printMessage("Transfer Transaction created successfully.");
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
         }
     }
 
-    private double getValidatedAmount(String promptMessage, boolean isPositive) {
+    private BigDecimal getValidatedAmount(String promptMessage, boolean isPositive) {
         while (true) {
             printPrompt(promptMessage);
             try {
                 String input = lastInput.replace(",", ".");
-                double amount = Double.parseDouble(input);
+                BigDecimal amount = new BigDecimal(input);
 
-                if ((isPositive && amount <= 0) || (!isPositive && amount >= 0)) {
+                if ((isPositive && amount.compareTo(BigDecimal.ZERO) <= 0) ||
+                        (!isPositive && amount.compareTo(BigDecimal.ZERO) >= 0)) {
                     throw new IllegalArgumentException("Amount must be " + (isPositive ? "positive." : "negative."));
                 }
+
                 return amount;
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException | ArithmeticException e) {
                 MessageHandler.printExceptionMessage("Invalid input. Please enter a valid number.");
             } catch (IllegalArgumentException e) {
                 MessageHandler.printExceptionMessage(e.getMessage());

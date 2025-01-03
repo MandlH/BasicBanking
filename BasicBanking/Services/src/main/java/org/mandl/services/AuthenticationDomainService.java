@@ -4,7 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hibernate.service.spi.ServiceException;
 import org.mandl.AuthenticationService;
-import org.mandl.LoggingHandler;
 import org.mandl.UserDto;
 import org.mandl.exceptions.AuthenticationException;
 import org.mandl.identity.IdentityUser;

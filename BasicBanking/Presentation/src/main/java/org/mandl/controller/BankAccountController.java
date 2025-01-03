@@ -4,6 +4,8 @@ import org.mandl.*;
 import org.mandl.exceptions.ExceptionHandler;
 import org.mandl.message.MessageHandler;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -86,7 +88,8 @@ public class BankAccountController extends BaseController {
 
             printPrompt("Enter Balance: ");
             var balanceInput = lastInput.replace(",", ".");
-            double balance = Double.parseDouble(balanceInput);
+            var balance = new BigDecimal(balanceInput);
+
 
             BankAccountDto bankAccountDto = new BankAccountDto(
                     accountNumber, balance, accountType, user

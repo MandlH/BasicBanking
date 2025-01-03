@@ -1,15 +1,16 @@
 package org.mandl;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public class BankAccountDto {
     private UUID id;
     private String accountNumber;
-    private double balance;
+    private BigDecimal balance;
     private BankAccountTypeDto accountType;
     private UserDto owner;
 
-    public BankAccountDto(String accountNumber, double balance, BankAccountTypeDto accountType, UserDto owner) {
+    public BankAccountDto(String accountNumber, BigDecimal balance, BankAccountTypeDto accountType, UserDto owner) {
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.accountType = accountType;
@@ -24,11 +25,11 @@ public class BankAccountDto {
         this.accountNumber = accountNumber;
     }
 
-    public double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 
