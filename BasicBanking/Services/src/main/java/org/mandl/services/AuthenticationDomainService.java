@@ -42,39 +42,41 @@ public class AuthenticationDomainService
             var newUser = new IdentityUser(username, password);
             identityUserRepository.save(newUser);
             repositoryWrapper.commitTransaction();
+
             var savedUser = identityUserRepository.getLoginUser(username);
             if (savedUser == null) {
-                logger.error("User registration failed: Unable to retrieve saved user with username " + username);
-                throw new ServiceException("An unexpected error occurred: User registration verification failed.");
+                throw new ServiceException("User registration verification failed.");
             }
 
             initializeUserContext(savedUser.getId());
             return UserMapper.INSTANCE.domainToDto(savedUser);
-        } catch (AuthenticationException e) {
+        } catch (AuthenticationException | IllegalArgumentException | ServiceException e) {
+            repositoryWrapper.rollbackTransaction();
             throw e;
-
-        } catch (Exception e) {
-            logger.error("An unexpected error occurred while registering user " + username, e);
-            throw new ServiceException("An unexpected error occurred while registering. Please try again.", e);
         }
     }
 
     @Override
     public UserDto loginUser(String username, String password) throws AuthenticationException {
-        try {
-            var identityUser = identityUserRepository.getLoginUser(username);
-            if (identityUser == null || !verifyPassword(password, identityUser.getPassword())) {
-                throw new AuthenticationException("Username or Password are wrong!");
-            }
-
-            initializeUserContext(identityUser.getId());
-            return UserMapper.INSTANCE.domainToDto(identityUser);
-        } catch (AuthenticationException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error("An unexpected error occurred while logining user " + username, e);
-            return null;
+        var identityUser = identityUserRepository.getLoginUser(username);
+        if (identityUser == null || !verifyPassword(password, identityUser.getPassword())) {
+            throw new AuthenticationException("Username or Password are wrong!");
         }
+
+        initializeUserContext(identityUser.getId());
+
+        var user = UserMapper.INSTANCE.domainToDto(identityUser);
+
+        if (user == null) {
+            throw new ServiceException("User login verification failed.");
+        }
+
+        return user;
+    }
+
+    @Override
+    public void logoutUser() {
+        userContext.reset();
     }
 
     private void initializeUserContext(UUID userId) {

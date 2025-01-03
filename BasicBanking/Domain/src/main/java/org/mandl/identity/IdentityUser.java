@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import org.mandl.entities.BankAccount;
 import org.mandl.entities.BaseEntity;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,7 +28,7 @@ public class IdentityUser implements BaseEntity {
     @JoinColumn(name = "user_id")
     private List<IdentityRole> roles;
 
-    public IdentityUser() {
+    protected IdentityUser() {
 
     }
 

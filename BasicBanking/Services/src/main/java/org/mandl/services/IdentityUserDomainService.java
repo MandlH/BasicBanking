@@ -32,31 +32,22 @@ final class IdentityUserDomainService
 
     @Override
     public boolean isAuthorized(UUID id, List<RoleDto> roles) {
-        try {
-            var user = identityUserRepository.findById(id);
-            if (user == null) {
-                throw new IllegalArgumentException("User not found.");
-            }
-            List<IdentityRole> identityRoles = roles
-                    .stream()
-                    .map(RoleMapper.INSTANCE::dtoToDomain)
-                    .toList();
-
-            return user.isAuthorized(identityRoles);
-        } catch (SecurityException e) {
-            logger.error("Error during authorization", e);
-            return false;
+        var user = identityUserRepository.findById(id);
+        if (user == null) {
+            throw new IllegalArgumentException("User not found.");
         }
+
+        List<IdentityRole> identityRoles = roles
+                .stream()
+                .map(RoleMapper.INSTANCE::dtoToDomain)
+                .toList();
+
+        return user.isAuthorized(identityRoles);
     }
 
     @Override
     public boolean isAuthenticated(UUID id) {
-        try {
-            return identityUserRepository.findById(id) != null;
-        } catch (SecurityException e) {
-            logger.error("Error during authorization", e);
-            return false;
-        }
+        return identityUserRepository.findById(id) != null;
     }
 
     @Override
@@ -71,8 +62,8 @@ final class IdentityUserDomainService
             identityUserRepository.update(user);
             repositoryWrapper.commitTransaction();
         } catch (Exception e) {
-            logger.error("Unexpected error while resetting password for user ID: " + id, e);
-            throw new ServiceException("An unexpected error occurred while resetting the password.", e);
+            repositoryWrapper.rollbackTransaction();
+            throw new ServiceException("Password could not be retested", e);
         }
     }
 
@@ -88,21 +79,19 @@ final class IdentityUserDomainService
             identityUserRepository.delete(user);
             repositoryWrapper.commitTransaction();
         } catch (IllegalArgumentException e) {
-            logger.warn(e.getMessage(), e);
             System.err.println("Deletion failed: " + e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("An unexpected error occurred while deleting user with ID " + id + ": " + e.getMessage());
+            repositoryWrapper.rollbackTransaction();
             throw new RuntimeException("Failed to delete user with ID " + id, e);
         }
     }
-
 
     @Override
     public UserDto getUser(UUID id) {
         var user = identityUserRepository.findById(id);
         if (user == null) {
-            throw new IllegalArgumentException("User not found.");
+            throw new IllegalArgumentException("User could not be found.");
         }
 
         return UserMapper.INSTANCE.domainToDto(user);
@@ -112,7 +101,7 @@ final class IdentityUserDomainService
     public UserDto getUser(String username) {
         var user = identityUserRepository.getLoginUser(username);
         if (user == null) {
-            throw new IllegalArgumentException("User not found.");
+            throw new IllegalArgumentException("User could not be found.");
         }
         return UserMapper.INSTANCE.domainToDto(user);
     }

@@ -7,9 +7,9 @@ public class ExceptionHandler {
     public static void handleException(Exception e) {
         switch (e) {
             case AuthenticationException authEx ->
-                    MessageHandler.printError(authEx.getMessage());
+                    MessageHandler.printWarning(authEx);
             case IllegalArgumentException illegalArgEx ->
-                    MessageHandler.printError(illegalArgEx.getMessage());
+                    MessageHandler.printInfo(illegalArgEx);
             default ->
                     MessageHandler.printError("An unexpected error occurred", e);
         }

@@ -85,7 +85,7 @@ public class MessageHandler {
         System.out.println(border);
     }
 
-    public static void printError(String errorMessage) {
+    public static void printExceptionMessage(String errorMessage) {
         var borderLength = errorMessage.length() + 10;
         String border = "*".repeat(borderLength);
 
@@ -98,8 +98,18 @@ public class MessageHandler {
         scanner.nextLine();
     }
 
-    public static void printError(String errorMessage, Exception e) {
+    public static void printError(String message, Exception e) {
         logger.error(e.getMessage(), e);
-        printError(errorMessage);
+        printExceptionMessage(message);
+    }
+
+    public static void printWarning(Exception e) {
+        logger.warn(e.getMessage(), e);
+        printExceptionMessage(e.getMessage());
+    }
+
+    public static void printInfo(Exception e) {
+        logger.info(e.getMessage());
+        printExceptionMessage(e.getMessage());
     }
 }

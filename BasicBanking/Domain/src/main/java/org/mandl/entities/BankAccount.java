@@ -3,6 +3,7 @@ package org.mandl.entities;
 import jakarta.persistence.*;
 import org.mandl.identity.IdentityUser;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,7 +18,7 @@ public class BankAccount implements BaseEntity {
     private String accountNumber;
 
     @Column(nullable = false)
-    private double balance;
+    private BigDecimal balance;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -33,15 +34,37 @@ public class BankAccount implements BaseEntity {
     @OneToMany(mappedBy = "bankAccountTo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Transaction> transactionsTo;
 
-    public BankAccount(String accountNumber, double balance, BankAccountType accountType, IdentityUser owner) {
+    protected BankAccount() {
+
+    }
+
+    public BankAccount(String accountNumber, BigDecimal balance, BankAccountType accountType, IdentityUser owner) {
+        validateAccountNumber(accountNumber);
+        validateBalance(balance);
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.accountType = accountType;
         this.owner = owner;
     }
 
-    // Default constructor required by JPA
-    protected BankAccount() {
+    public static void validateAccountNumber(String accountNumber) {
+        if (accountNumber == null) {
+            throw new IllegalArgumentException("Account number cannot be null");
+        }
+
+        if (accountNumber.length() != 10) {
+            throw new IllegalArgumentException("Account number length must be 10");
+        }
+    }
+
+    public static void validateBalance(BigDecimal balance) {
+        if (balance == null) {
+            throw new IllegalArgumentException("Balance cannot be null");
+        }
+
+        if (balance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Balance must be greater than zero");
+        }
     }
 
     public UUID getId() {
@@ -56,11 +79,12 @@ public class BankAccount implements BaseEntity {
         this.accountNumber = accountNumber;
     }
 
-    public double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(BigDecimal balance) {
+        validateBalance(balance);
         this.balance = balance;
     }
 

@@ -10,9 +10,6 @@ public class Context implements UserContext {
     private UUID userId;
 
     public void initialize(UUID userId) {
-        if (this.userId != null) {
-            throw new IllegalStateException("UserContext is already initialized.");
-        }
         this.userId = userId;
     }
 

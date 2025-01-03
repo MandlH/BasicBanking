@@ -35,7 +35,6 @@ final class BankAccountDomainService
                     .map(BankAccountMapper.INSTANCE::domainToDto)
                     .toList();
         } catch (Exception e) {
-            logger.error("Failed to fetch bank accounts for owner ID: " + ownerId, e);
             throw new ServiceException("Error retrieving bank accounts", e);
         }
     }
@@ -50,7 +49,6 @@ final class BankAccountDomainService
             return BankAccountMapper.INSTANCE.domainToDto(bankAccount);
         } catch (Exception e) {
             repositoryWrapper.rollbackTransaction();
-            logger.error("Failed to create bank account for owner ID: " + bankAccountDto.getOwner().getId(), e);
             throw new ServiceException("Error creating bank account", e);
         }
     }
@@ -77,7 +75,7 @@ final class BankAccountDomainService
             }
 
             return BankAccountMapper.INSTANCE.domainToDto(bankAccount);
-        } catch (Exception e) {
+        } catch (ServiceException e) {
             throw new ServiceException("Error checking if bank account exists", e);
         }
     }

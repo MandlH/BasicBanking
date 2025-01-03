@@ -1,17 +1,16 @@
 package org.mandl.services;
 
 import jakarta.inject.Inject;
-import jdk.jshell.spi.ExecutionControl;
 import org.hibernate.service.spi.ServiceException;
 import org.mandl.*;
 import org.mandl.entities.BankAccount;
 import org.mandl.entities.Transaction;
-import org.mandl.mapper.BankAccountMapper;
 import org.mandl.mapper.TransactionMapper;
 import org.mandl.repositories.BankAccountRepository;
 import org.mandl.repositories.RepositoryWrapper;
 import org.mandl.repositories.TransactionRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,7 +74,7 @@ final class TransactionDomainService
             repositoryWrapper.commitTransaction();
         } catch (Exception e) {
             repositoryWrapper.rollbackTransaction();
-            throw new ServiceException("Error adding Transaction", e);
+            throw new ServiceException("Transaction could not be created.", e);
         }
     }
 
@@ -95,22 +94,26 @@ final class TransactionDomainService
         validateTransactionAmount(transaction.getAmount(), true);
 
         var bankAccount = bankAccountRepository.findByAccountNumber(bankAccountTo.getAccountNumber());
-        bankAccount.setBalance(bankAccount.getBalance() + transaction.getAmount());
+        bankAccount.setBalance(bankAccount.getBalance().add(transaction.getAmount()));
         transaction.setBankAccountTo(bankAccount);
         bankAccountRepository.update(bankAccount);
     }
 
     private void executeWithdrawalTransaction(Transaction transaction, BankAccount bankAccountFrom) {
-
         validateBankAccountExists(bankAccountFrom);
         validateTransactionAmount(transaction.getAmount(), false);
 
         var bankAccount = bankAccountRepository.findByAccountNumber(bankAccountFrom.getAccountNumber());
-        if (bankAccount.getBalance() + transaction.getAmount() < 0) {
+        if (bankAccount == null) {
+            throw new ServiceException("Bank account does not exist.");
+        }
+
+        BigDecimal newBalance = bankAccount.getBalance().add(transaction.getAmount());
+        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
             throw new ServiceException("Insufficient funds for withdrawal.");
         }
 
-        bankAccount.setBalance(bankAccount.getBalance() + transaction.getAmount()); // Withdrawal amount is negative
+        bankAccount.setBalance(newBalance); // Withdrawal amount is negative
         transaction.setBankAccountFrom(bankAccount);
         bankAccountRepository.update(bankAccount);
     }
@@ -121,14 +124,21 @@ final class TransactionDomainService
         validateTransactionAmount(transaction.getAmount(), true);
 
         var sourceAccount = bankAccountRepository.findByAccountNumber(bankAccountFrom.getAccountNumber());
-        if (sourceAccount.getBalance() < transaction.getAmount()) {
+        var destinationAccount = bankAccountRepository.findByAccountNumber(bankAccountTo.getAccountNumber());
+
+        if (sourceAccount == null || destinationAccount == null) {
+            throw new ServiceException("One or both bank accounts do not exist.");
+        }
+
+        if (sourceAccount.getBalance().compareTo(transaction.getAmount()) < 0) {
             throw new ServiceException("Insufficient funds for transfer.");
         }
 
-        var destinationAccount = bankAccountRepository.findByAccountNumber(bankAccountTo.getAccountNumber());
+        BigDecimal newSourceBalance = sourceAccount.getBalance().subtract(transaction.getAmount());
+        BigDecimal newDestinationBalance = destinationAccount.getBalance().add(transaction.getAmount());
 
-        sourceAccount.setBalance(sourceAccount.getBalance() - transaction.getAmount());
-        destinationAccount.setBalance(destinationAccount.getBalance() + transaction.getAmount());
+        sourceAccount.setBalance(newSourceBalance);
+        destinationAccount.setBalance(newDestinationBalance);
 
         transaction.setBankAccountFrom(sourceAccount);
         transaction.setBankAccountTo(destinationAccount);
@@ -143,8 +153,13 @@ final class TransactionDomainService
         }
     }
 
-    private void validateTransactionAmount(double amount, boolean isPositive) {
-        if ((isPositive && amount <= 0) || (!isPositive && amount >= 0)) {
+    private void validateTransactionAmount(BigDecimal amount, boolean isPositive) {
+        if (amount == null) {
+            throw new ServiceException("Transaction amount cannot be null.");
+        }
+
+        if ((isPositive && amount.compareTo(BigDecimal.ZERO) <= 0) ||
+                (!isPositive && amount.compareTo(BigDecimal.ZERO) >= 0)) {
             throw new ServiceException("Invalid transaction amount. Amount must be " + (isPositive ? "positive." : "negative."));
         }
     }

@@ -17,6 +17,7 @@ public class AuthenticationController extends BaseController {
     }
 
     public static Controller create(ServiceManager serviceManager) {
+        serviceManager.getAuthenticationService().logoutUser();
         return new AuthenticationController(serviceManager);
     }
 

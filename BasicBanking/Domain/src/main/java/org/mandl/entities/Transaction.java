@@ -3,6 +3,7 @@ package org.mandl.entities;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -19,7 +20,7 @@ public class Transaction implements BaseEntity {
     private TransactionType transactionType;
 
     @Column(nullable = false)
-    private double amount;
+    private BigDecimal amount;
 
     @Column(nullable = false)
     private LocalDateTime transactionDate;
@@ -67,11 +68,11 @@ public class Transaction implements BaseEntity {
         this.transactionType = transactionType;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

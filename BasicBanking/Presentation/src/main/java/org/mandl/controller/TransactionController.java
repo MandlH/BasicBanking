@@ -197,9 +197,9 @@ public class TransactionController extends BaseController {
                 }
                 return amount;
             } catch (NumberFormatException e) {
-                MessageHandler.printError("Invalid input. Please enter a valid number.");
+                MessageHandler.printExceptionMessage("Invalid input. Please enter a valid number.");
             } catch (IllegalArgumentException e) {
-                MessageHandler.printError(e.getMessage());
+                MessageHandler.printExceptionMessage(e.getMessage());
             }
         }
     }
