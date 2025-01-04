@@ -1,6 +1,8 @@
 package org.mandl.entities;
 
 import jakarta.persistence.*;
+import org.mandl.converters.BigDecimalEncryptionConverter;
+import org.mandl.converters.StringEncryptionConverter;
 import org.mandl.identity.IdentityUser;
 
 import java.math.BigDecimal;
@@ -15,9 +17,11 @@ public class BankAccount implements BaseEntity {
     private UUID id;
 
     @Column(nullable = false, unique = true)
+    @Convert(converter = StringEncryptionConverter.class)
     private String accountNumber;
 
     @Column(nullable = false)
+    @Convert(converter = BigDecimalEncryptionConverter.class)
     private BigDecimal balance;
 
     @Enumerated(EnumType.STRING)

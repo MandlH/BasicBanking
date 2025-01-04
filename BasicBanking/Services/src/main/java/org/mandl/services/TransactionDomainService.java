@@ -60,6 +60,10 @@ final class TransactionDomainService
             BankAccount bankAccountFrom;
             BankAccount bankAccountTo;
 
+            if (bankAccountNumberFrom != null && bankAccountNumberFrom.equals(bankAccountNumberTo)) {
+                throw new ServiceException("Source cannot be the same as the destination bank account number!");
+            }
+
             repositoryWrapper.beginTransaction();
             switch (transactionDto.getTransactionType()) {
                 case TRANSFER:
@@ -81,8 +85,7 @@ final class TransactionDomainService
         } catch (ServiceException e) {
             repositoryWrapper.rollbackTransaction();
             throw e;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             repositoryWrapper.rollbackTransaction();
             throw new ServiceException("Transaction could not be created.", e);
         }

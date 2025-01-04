@@ -2,6 +2,7 @@ package org.mandl.entities;
 
 import jakarta.persistence.*;
 import org.mandl.converters.BigDecimalEncryptionConverter;
+import org.mandl.converters.LocalDateTimeEncryptionConverter;
 import org.mandl.converters.StringEncryptionConverter;
 
 import java.math.BigDecimal;
@@ -26,16 +27,15 @@ public class Transaction implements BaseEntity {
     private BigDecimal amount;
 
     @Column(nullable = false)
+    @Convert(converter = LocalDateTimeEncryptionConverter.class)
     private LocalDateTime transactionDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
-    @Convert(converter = StringEncryptionConverter.class)
     private BankAccount bankAccountFrom;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
-    @Convert(converter = StringEncryptionConverter.class)
     private BankAccount bankAccountTo;
 
     @Column(length = 100)

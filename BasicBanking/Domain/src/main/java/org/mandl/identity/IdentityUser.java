@@ -1,6 +1,7 @@
 package org.mandl.identity;
 
 import jakarta.persistence.*;
+import org.mandl.converters.StringEncryptionConverter;
 import org.mandl.entities.BankAccount;
 import org.mandl.entities.BaseEntity;
 
@@ -16,12 +17,15 @@ public class IdentityUser implements BaseEntity {
     private UUID id;
 
     @Column(nullable = false, unique = true)
+    @Convert(converter = StringEncryptionConverter.class)
     private String username;
 
     @Column(nullable = false)
+    @Convert(converter = StringEncryptionConverter.class)
     private String password;
 
     @Column(nullable = false)
+    @Convert(converter = StringEncryptionConverter.class)
     private String salt;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
