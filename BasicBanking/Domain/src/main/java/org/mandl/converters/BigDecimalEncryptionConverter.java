@@ -16,7 +16,7 @@ public class BigDecimalEncryptionConverter implements AttributeConverter<BigDeci
     private static final String ENCRYPTION_ALGORITHM = "AES/GCM/NoPadding";
     private static final int IV_LENGTH = 12;
     private static final int GCM_TAG_LENGTH = 128;
-    private static final String SECRET_KEY = "dSh98a43hpYokPg4";
+    private static final String SECRET_KEY = Constants.getKey();
     private static final SecretKeySpec SECRET_KEY_SPEC = new SecretKeySpec(SECRET_KEY.getBytes(), "AES");
 
     @Override
