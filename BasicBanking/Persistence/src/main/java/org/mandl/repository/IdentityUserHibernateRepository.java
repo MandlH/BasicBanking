@@ -27,9 +27,4 @@ public class IdentityUserHibernateRepository
                 .setParameter("username", username)
                 .uniqueResult();
     }
-
-    @Override
-    public void update(IdentityUser entity) {
-        throw new UnsupportedOperationException("Transactions can not be updated");
-    }
 }

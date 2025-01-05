@@ -79,6 +79,14 @@ public class Transaction implements BaseEntity {
     }
 
     public void setAmount(BigDecimal amount) {
+        if (amount == null) {
+            throw new IllegalArgumentException("Amount cannot be null");
+        }
+
+        if (amount.scale() > 2) {
+            throw new IllegalArgumentException("Amount can only have up to two decimal places");
+        }
+
         this.amount = amount;
     }
 

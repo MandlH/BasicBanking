@@ -9,7 +9,6 @@ import java.util.Scanner;
 
 public class MessageHandler {
     private static final Scanner scanner = new Scanner(System.in);
-    private static final LoggingHandler logger = LoggingHandler.getLogger(ExceptionHandler.class);
 
     public static void printMessage(String message) {
         int length = 7 + message.length();
@@ -18,7 +17,6 @@ public class MessageHandler {
         System.out.println("-".repeat(length));
         System.out.println("Press Enter to continue...");
         scanner.nextLine();
-        logger.info(message);
     }
 
     public static void printMessages(List<String> messages) {
@@ -96,20 +94,5 @@ public class MessageHandler {
         System.out.printf("%s%s\n", "Enter to acknowledge...", padding);
 
         scanner.nextLine();
-    }
-
-    public static void printError(String message, Exception e) {
-        logger.error(e.getMessage(), e);
-        printExceptionMessage(message);
-    }
-
-    public static void printWarning(Exception e) {
-        logger.warn(e.getMessage(), e);
-        printExceptionMessage(e.getMessage());
-    }
-
-    public static void printInfo(Exception e) {
-        logger.info(e.getMessage(), e);
-        printExceptionMessage(e.getMessage());
     }
 }

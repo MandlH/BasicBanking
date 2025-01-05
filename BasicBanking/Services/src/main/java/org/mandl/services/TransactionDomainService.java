@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 final class TransactionDomainService
+    extends BaseDomainService
         implements TransactionService {
 
     private final TransactionRepository transactionRepository;
@@ -29,36 +30,25 @@ final class TransactionDomainService
     }
 
     @Override
-    public List<TransactionDto> getTransactions(TransactionTypeDto typeDto, UUID bankAccountId) {
-        try {
-            var transactionType = TransactionMapper.INSTANCE.dtoToDomain(typeDto);
-            var transactions = transactionRepository.getTransactions(transactionType, bankAccountId);
-            return transactions.stream()
-                    .map(TransactionMapper.INSTANCE::domainToDto)
-                    .toList();
-        } catch (Exception e) {
-            throw new ServiceException("Error retrieving Transactions", e);
-        }
-    }
-
-    @Override
     public List<TransactionDto> getTransactions(UUID bankAccountId) {
         try {
-            var transactions = transactionRepository.getTransactions(bankAccountId);
-            return transactions.stream()
+            var transactions = transactionRepository.getUserTransactions(bankAccountId);
+            var transactionsDto = transactions.stream()
                     .map(TransactionMapper.INSTANCE::domainToDto)
                     .toList();
+            logger.info("Transactions retrieved for " + userContext.getUsername());
+            return transactionsDto;
         } catch (Exception e) {
             throw new ServiceException("Error retrieving Transactions", e);
         }
     }
 
     @Override
-    public void createTransaction(TransactionDto transactionDto, String bankAccountNumberFrom, String bankAccountNumberTo) {
+    public void createTransaction(TransactionDto transactionDto,
+                                  String bankAccountNumberFrom,
+                                  String bankAccountNumberTo) {
         try {
             var transaction = TransactionMapper.INSTANCE.dtoToDomain(transactionDto);
-            BankAccount bankAccountFrom;
-            BankAccount bankAccountTo;
 
             if (bankAccountNumberFrom != null && bankAccountNumberFrom.equals(bankAccountNumberTo)) {
                 throw new ServiceException("Source cannot be the same as the destination bank account number!");
@@ -66,106 +56,77 @@ final class TransactionDomainService
 
             repositoryWrapper.beginTransaction();
             switch (transactionDto.getTransactionType()) {
-                case TRANSFER:
-                    bankAccountFrom = loadOrValidateBankAccount(bankAccountNumberFrom);
-                    bankAccountTo = loadOrValidateBankAccount(bankAccountNumberTo);
-                    executeTransferTransaction(transaction, bankAccountFrom, bankAccountTo);
-                    break;
-                case WITHDRAWAL:
-                    bankAccountFrom = loadOrValidateBankAccount(bankAccountNumberFrom);
-                    executeWithdrawalTransaction(transaction, bankAccountFrom);
-                    break;
-                case DEPOSIT:
-                    bankAccountTo = loadOrValidateBankAccount(bankAccountNumberTo);
-                    executeDepositTransaction(transaction, bankAccountTo);
+                case TRANSFER -> executeTransferTransaction(transaction, bankAccountNumberFrom, bankAccountNumberTo);
+                case WITHDRAWAL -> executeWithdrawalTransaction(transaction, bankAccountNumberFrom);
+                case DEPOSIT -> executeDepositTransaction(transaction, bankAccountNumberTo);
             }
 
             transactionRepository.save(transaction);
             repositoryWrapper.commitTransaction();
-        } catch (ServiceException e) {
+            logger.info(transaction.getTransactionType() + " transaction created by " + userContext.getUsername());
+        } catch (ServiceException | IllegalArgumentException e) {
             repositoryWrapper.rollbackTransaction();
             throw e;
         } catch (Exception e) {
             repositoryWrapper.rollbackTransaction();
-            throw new ServiceException("Transaction could not be created.", e);
+            throw new ServiceException("Error occurred transaction could not be created.", e);
         }
     }
 
-    private BankAccount loadOrValidateBankAccount(String bankAccountNumber) {
+    private void executeDepositTransaction(Transaction transaction, String bankAccountNumberTo) {
+        var bankAccountTo = loadOrValidateBankAccount(bankAccountNumberTo, true);
+        validateTransactionAmount(transaction.getAmount(), true);
+
+        bankAccountTo.deposit(transaction.getAmount());
+        transaction.setBankAccountTo(bankAccountTo);
+        bankAccountRepository.update(bankAccountTo);
+    }
+
+    private void executeWithdrawalTransaction(Transaction transaction, String bankAccountNumberFrom) {
+        var bankAccountFrom = loadOrValidateBankAccount(bankAccountNumberFrom, true);
+        validateTransactionAmount(transaction.getAmount(), false);
+
+        bankAccountFrom.withdraw(transaction.getAmount());
+        transaction.setBankAccountFrom(bankAccountFrom);
+        bankAccountRepository.update(bankAccountFrom);
+    }
+
+    private void executeTransferTransaction(Transaction transaction,
+                                            String bankAccountNumberFrom, String bankAccountNumberTo) {
+        var bankAccountFrom = loadOrValidateBankAccount(bankAccountNumberFrom, true);
+        var bankAccountTo = loadOrValidateBankAccount(bankAccountNumberTo, false);
+        validateTransactionAmount(transaction.getAmount(), true);
+
+        // A transfer is a withdrawal from source and a deposit to destination
+        bankAccountFrom.withdraw(transaction.getAmount().negate());
+        bankAccountTo.deposit(transaction.getAmount());
+
+        transaction.setBankAccountFrom(bankAccountFrom);
+        transaction.setBankAccountTo(bankAccountTo);
+
+        bankAccountRepository.update(bankAccountFrom);
+        bankAccountRepository.update(bankAccountTo);
+    }
+
+    private BankAccount loadOrValidateBankAccount(String bankAccountNumber, boolean isOwner) {
         var bankAccount = bankAccountRepository.findByAccountNumber(bankAccountNumber);
+
         if (bankAccount == null) {
             throw new ServiceException("Bank account does not exist: " + bankAccountNumber);
         }
+
+        if (isOwner){
+            if (!bankAccount.getOwner().getId().equals(userContext.getUserId())){
+                throw new ServiceException("You do not have bank account with this Account No.: " + bankAccountNumber);
+            }
+        }
+
         return bankAccount;
-    }
-
-    private void executeDepositTransaction(Transaction transaction, BankAccount bankAccountTo) {
-        validateBankAccountExists(bankAccountTo);
-        validateTransactionAmount(transaction.getAmount(), true);
-
-        var bankAccount = bankAccountRepository.findByAccountNumber(bankAccountTo.getAccountNumber());
-        bankAccount.setBalance(bankAccount.getBalance().add(transaction.getAmount()));
-        transaction.setBankAccountTo(bankAccount);
-        bankAccountRepository.update(bankAccount);
-    }
-
-    private void executeWithdrawalTransaction(Transaction transaction, BankAccount bankAccountFrom) {
-        validateBankAccountExists(bankAccountFrom);
-        validateTransactionAmount(transaction.getAmount(), false);
-
-        var bankAccount = bankAccountRepository.findByAccountNumber(bankAccountFrom.getAccountNumber());
-        if (bankAccount == null) {
-            throw new ServiceException("Bank account does not exist.");
-        }
-
-        BigDecimal newBalance = bankAccount.getBalance().add(transaction.getAmount());
-        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
-            throw new ServiceException("Insufficient funds for withdrawal.");
-        }
-
-        bankAccount.setBalance(newBalance); // Withdrawal amount is negative
-        transaction.setBankAccountFrom(bankAccount);
-        bankAccountRepository.update(bankAccount);
-    }
-
-    private void executeTransferTransaction(Transaction transaction, BankAccount bankAccountFrom, BankAccount bankAccountTo) {
-        validateBankAccountExists(bankAccountFrom);
-        validateBankAccountExists(bankAccountTo);
-        validateTransactionAmount(transaction.getAmount(), true);
-
-        var sourceAccount = bankAccountRepository.findByAccountNumber(bankAccountFrom.getAccountNumber());
-        var destinationAccount = bankAccountRepository.findByAccountNumber(bankAccountTo.getAccountNumber());
-
-        if (sourceAccount == null || destinationAccount == null) {
-            throw new ServiceException("One or both bank accounts do not exist.");
-        }
-
-        if (sourceAccount.getBalance().compareTo(transaction.getAmount()) < 0) {
-            throw new ServiceException("Insufficient funds for transfer.");
-        }
-
-        BigDecimal newSourceBalance = sourceAccount.getBalance().subtract(transaction.getAmount());
-        BigDecimal newDestinationBalance = destinationAccount.getBalance().add(transaction.getAmount());
-
-        sourceAccount.setBalance(newSourceBalance);
-        destinationAccount.setBalance(newDestinationBalance);
-
-        transaction.setBankAccountFrom(sourceAccount);
-        transaction.setBankAccountTo(destinationAccount);
-
-        bankAccountRepository.update(sourceAccount);
-        bankAccountRepository.update(destinationAccount);
-    }
-
-    private void validateBankAccountExists(BankAccount bankAccount) {
-        if (bankAccount == null || bankAccountRepository.findByAccountNumber(bankAccount.getAccountNumber()) == null) {
-            throw new ServiceException("Bank account does not exist.");
-        }
     }
 
     private void validateTransactionAmount(BigDecimal amount, boolean isPositive) {
         if (amount == null) {
-            throw new ServiceException("Transaction amount cannot be null.");
+            throw new ServiceException("Transaction amount must have a value!");
         }
 
         if ((isPositive && amount.compareTo(BigDecimal.ZERO) <= 0) ||

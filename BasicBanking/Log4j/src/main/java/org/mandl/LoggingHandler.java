@@ -23,19 +23,23 @@ public class LoggingHandler {
         logger.info(message, throwable);
     }
 
-    public void warn(String message) {
-        logger.warn(message);
-    }
-
     public void warn(String message, Throwable throwable) {
         logger.warn(message, throwable);
     }
 
-    public void error(String message) {
-        logger.error(message);
+    public void warn(String message) {
+        logger.warn(message);
     }
 
     public void error(String message, Throwable throwable) {
         logger.error(message, throwable);
+    }
+
+    public void fatal(String message, Throwable throwable) {
+        logger.fatal(message, throwable);
+    }
+
+    public void fatal(String message) {
+        logger.fatal(message);
     }
 }

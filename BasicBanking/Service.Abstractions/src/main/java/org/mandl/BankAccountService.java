@@ -1,11 +1,10 @@
 package org.mandl;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface BankAccountService {
-    List<BankAccountDto> getAllBankAccountsByOwnerId(UUID ownerId);
+    List<BankAccountDto> getAllBankAccounts();
     BankAccountDto createBankAccount(BankAccountDto bankAccountDto);
     void deleteBankAccount(String accountNumber);
-    BankAccountDto getBankAccount(UUID userId, String accountNumber);
+    BankAccountDto getBankAccount(String accountNumber);
 }

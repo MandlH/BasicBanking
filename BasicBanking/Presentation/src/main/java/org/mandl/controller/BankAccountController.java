@@ -5,15 +5,15 @@ import org.mandl.exceptions.ExceptionHandler;
 import org.mandl.message.MessageHandler;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BankAccountController extends BaseController {
 
     private final String LIST_BANK_ACCOUNTS = "List Bank Accounts";
     private final String CREATE_BANK_ACCOUNT = "Create Bank Account";
-    private final String DELETE_BANK_ACCOUNT = "Delete Bank Account";
+    private final String DELETE_BANK_ACCOUNT = "Deactivate Bank Account";
 
     private BankAccountController(UserDto user, ServiceManager serviceManager) {
         super(user, serviceManager);
@@ -54,7 +54,7 @@ public class BankAccountController extends BaseController {
             MessageHandler.printHeader(LIST_BANK_ACCOUNTS);
             var bankAccounts = serviceManager
                     .getBankAccountService()
-                    .getAllBankAccountsByOwnerId(user.getId());
+                    .getAllBankAccounts();
 
             PartialController.PrintBankAccounts(bankAccounts, true);
         } catch (Exception e) {
@@ -107,12 +107,26 @@ public class BankAccountController extends BaseController {
     private void deleteBankAccount() {
         try {
             MessageHandler.printHeader(DELETE_BANK_ACCOUNT);
+            var bankAccounts = serviceManager.getBankAccountService().getAllBankAccounts();
+            PartialController.PrintBankAccounts(bankAccounts, false);
+            System.out.println("Deactivated Bank Accounts can not be reactivated and are not accessible!");
+            System.out.println("Transactions are not possible with deactivated bank accounts.");
             printPrompt("Enter Account Number: ");
             var accountNumber = lastInput;
+            validateBankAccountExists(lastInput, bankAccounts);
             serviceManager.getBankAccountService().deleteBankAccount(accountNumber);
-            MessageHandler.printMessage("Bank account deleted successfully.");
+            MessageHandler.printMessage("Bank account deactivated successfully.");
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
+        }
+    }
+
+    private void validateBankAccountExists(String accountNumber, List<BankAccountDto> bankAccounts) {
+        boolean accountExists = bankAccounts.stream()
+                .anyMatch(account -> account.getAccountNumber().equals(accountNumber));
+
+        if (!accountExists) {
+            throw new IllegalArgumentException("Bank account number " + accountNumber + " not found!");
         }
     }
 }

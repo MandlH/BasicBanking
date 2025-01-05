@@ -3,13 +3,13 @@ package org.mandl.repository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hibernate.Session;
+import org.hibernate.service.spi.ServiceException;
 import org.mandl.entities.BankAccount;
 import org.mandl.identity.IdentityUser;
 import org.mandl.repositories.BankAccountRepository;
 import org.mandl.unitOfWork.UnitOfWork;
 
 import java.util.List;
-import java.util.UUID;
 
 @ApplicationScoped
 public class BankAccountHibernateRepository
@@ -24,35 +24,31 @@ public class BankAccountHibernateRepository
         this.session = unitOfWork.getSession();
     }
 
-    public List<BankAccount> getAllBankAccountsByOwnerId(UUID ownerId) {
-        String hql = "FROM BankAccount WHERE owner.id = :ownerId";
-        return session
+    public List<BankAccount> getAllBankAccountsFromOwner() {
+        String hql = "FROM BankAccount b WHERE b.owner.id = :ownerId AND b.isDeleted = false";
+        var ownerId = context.getUserId();
+        var bankAccounts = session
                 .createQuery(hql, BankAccount.class)
                 .setParameter("ownerId", ownerId)
                 .getResultList();
+
+        return bankAccounts;
     }
 
     public BankAccount createBankAccount(BankAccount bankAccount) {
         IdentityUser identityUser = session.get(IdentityUser.class, bankAccount.getOwner().getId());
-        if (identityUser == null) {
-            throw new IllegalStateException("Owner not found for ID: " + bankAccount.getOwner().getId());
-        }
         bankAccount.setOwner(identityUser);
         save(bankAccount);
         return findById(bankAccount.getId());
     }
 
     @Override
-    public void deleteBankAccount(String accountNumber) {
-        var bankaccount = findByAccountNumber(accountNumber);
-        delete(bankaccount);
-    }
-
-    @Override
     public BankAccount findByAccountNumber(String accountNumber) {
-        return session.createQuery(
+        var bankAccount = session.createQuery(
                         "FROM BankAccount b WHERE b.accountNumber = :accountNumber", BankAccount.class)
                 .setParameter("accountNumber", accountNumber)
                 .uniqueResult();
+
+        return bankAccount;
     }
 }

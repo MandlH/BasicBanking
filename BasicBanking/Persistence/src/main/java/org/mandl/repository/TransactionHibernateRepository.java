@@ -21,7 +21,7 @@ public class TransactionHibernateRepository
     }
 
     @Override
-    public List<Transaction> getTransactions(TransactionType type, UUID bankAccountId) {
+    public List<Transaction> getUserTransactions(TransactionType type, UUID bankAccountId) {
         return session.createQuery(
                         """
                         SELECT t
@@ -40,7 +40,7 @@ public class TransactionHibernateRepository
     }
 
     @Override
-    public List<Transaction> getTransactions(UUID bankAccountId) {
+    public List<Transaction> getUserTransactions(UUID bankAccountId) {
         return session.createQuery(
                         """
                         SELECT t
@@ -48,13 +48,19 @@ public class TransactionHibernateRepository
                         LEFT JOIN FETCH t.bankAccountFrom baf
                         LEFT JOIN FETCH t.bankAccountTo bat
                         WHERE
-                            (baf.id = :bankAccountId)
+                            (baf.id = :bankAccountId) AND (baf.owner.id = :ownerId)
                             OR
-                            (bat.id = :bankAccountId)
+                            (bat.id = :bankAccountId) AND (bat.owner.id = :ownerId)
                        """,
                         Transaction.class)
                 .setParameter("bankAccountId", bankAccountId)
+                .setParameter("ownerId", context.getUserId())
                 .getResultList();
+    }
+
+    @Override
+    public void update(Transaction entity) {
+        throw new UnsupportedOperationException("Transactions can not be updated");
     }
 }
 

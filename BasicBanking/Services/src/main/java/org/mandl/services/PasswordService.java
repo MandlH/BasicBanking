@@ -1,7 +1,5 @@
 package org.mandl.services;
 
-import jakarta.enterprise.context.ApplicationScoped;
-
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.security.NoSuchAlgorithmException;

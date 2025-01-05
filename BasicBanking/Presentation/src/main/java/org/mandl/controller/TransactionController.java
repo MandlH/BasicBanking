@@ -1,5 +1,7 @@
 package org.mandl.controller;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mandl.*;
 import org.mandl.exceptions.ExceptionHandler;
 import org.mandl.message.MessageHandler;
@@ -7,10 +9,12 @@ import org.mandl.message.MessageHandler;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TransactionController extends BaseController {
 
+    private static final Log log = LogFactory.getLog(TransactionController.class);
     private final String TRANSACTION_HISTORY = "Transaction History";
     private final String DEPOSIT_TRANSACTION = "Deposit Transaction";
     private final String WITHDRAW_TRANSACTION = "Withdraw Transaction";
@@ -57,16 +61,16 @@ public class TransactionController extends BaseController {
             MessageHandler.printHeader(TRANSACTION_HISTORY);
             var bankAccountService = serviceManager.getBankAccountService();
 
-            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(user.getId());
+            var bankAccounts = bankAccountService.getAllBankAccounts();
             PartialController.PrintBankAccounts(bankAccounts, false);
 
             printPrompt("Enter Bank Account No.: ");
             var bankAccountNumber = lastInput;
 
-            var bankAccount = bankAccountService.getBankAccount(user.getId(), bankAccountNumber);
-            var transactions = serviceManager
-                    .getTransactionService()
-                    .getTransactions(bankAccount.getId());
+            validateBankAccountExists(bankAccountNumber, bankAccounts);
+
+            var bankAccount = bankAccountService.getBankAccount(bankAccountNumber);
+            var transactions = serviceManager.getTransactionService().getTransactions(bankAccount.getId());
             PartialController.PrintTransactions(transactions);
         } catch (Exception e) {
             ExceptionHandler.handleException(e);
@@ -78,10 +82,13 @@ public class TransactionController extends BaseController {
             MessageHandler.printHeader(DEPOSIT_TRANSACTION);
             var bankAccountService = serviceManager.getBankAccountService();
 
-            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(user.getId());
+            var bankAccounts = bankAccountService.getAllBankAccounts();
             PartialController.PrintBankAccounts(bankAccounts, false);
+
             printPrompt("Enter Bank Account No.: ");
             var bankAccountNumber = lastInput;
+
+            validateBankAccountExists(bankAccountNumber, bankAccounts);
 
             BigDecimal amount = getValidatedAmount("Enter Amount to Deposit: ", true);
 
@@ -110,10 +117,13 @@ public class TransactionController extends BaseController {
             MessageHandler.printHeader(WITHDRAW_TRANSACTION);
             var bankAccountService = serviceManager.getBankAccountService();
 
-            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(user.getId());
+            var bankAccounts = bankAccountService.getAllBankAccounts();
             PartialController.PrintBankAccounts(bankAccounts, false);
+
             printPrompt("Enter Bank Account No.: ");
             var bankAccountNumber = lastInput;
+
+            validateBankAccountExists(bankAccountNumber, bankAccounts);
 
             BigDecimal amount = getValidatedAmount("Enter Amount to Withdraw: ", false);
 
@@ -141,11 +151,14 @@ public class TransactionController extends BaseController {
         try {
             MessageHandler.printHeader(TRANSFER_TRANSACTION);
             var bankAccountService = serviceManager.getBankAccountService();
+            var bankAccounts = bankAccountService.getAllBankAccounts();
 
-            var bankAccounts = bankAccountService.getAllBankAccountsByOwnerId(user.getId());
             PartialController.PrintBankAccounts(bankAccounts, false);
+
             printPrompt("Enter Source Bank Account No.: ");
             var sourceAccountNumber = lastInput;
+
+            validateBankAccountExists(sourceAccountNumber, bankAccounts);
 
             printPrompt("Enter Destination Bank Account No.: ");
             var destinationAccountNumber = lastInput;
@@ -190,6 +203,15 @@ public class TransactionController extends BaseController {
             } catch (IllegalArgumentException e) {
                 MessageHandler.printExceptionMessage(e.getMessage());
             }
+        }
+    }
+
+    private void validateBankAccountExists(String accountNumber, List<BankAccountDto> bankAccounts) {
+        boolean accountExists = bankAccounts.stream()
+                .anyMatch(account -> account.getAccountNumber().equals(accountNumber));
+
+        if (!accountExists) {
+            throw new IllegalArgumentException("Bank account number " + accountNumber + " not found!");
         }
     }
 }

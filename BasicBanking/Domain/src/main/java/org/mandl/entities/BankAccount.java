@@ -2,16 +2,18 @@ package org.mandl.entities;
 
 import jakarta.persistence.*;
 import org.mandl.converters.BigDecimalEncryptionConverter;
+import org.mandl.converters.LocalDateTimeEncryptionConverter;
 import org.mandl.converters.StringEncryptionConverter;
 import org.mandl.identity.IdentityUser;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table
-public class BankAccount implements BaseEntity {
+public class BankAccount implements BaseEntity, SoftDelete {
     @Id
     @GeneratedValue
     private UUID id;
@@ -38,6 +40,13 @@ public class BankAccount implements BaseEntity {
     @OneToMany(mappedBy = "bankAccountTo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Transaction> transactionsTo;
 
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
+    @Column
+    @Convert(converter = LocalDateTimeEncryptionConverter.class)
+    private LocalDateTime deletedAt;
+
     protected BankAccount() {
 
     }
@@ -59,6 +68,11 @@ public class BankAccount implements BaseEntity {
         if (accountNumber.length() != 10) {
             throw new IllegalArgumentException("Account number length must be 10");
         }
+
+        String prefix = accountNumber.substring(0, 2);
+        if (!prefix.matches("[A-Z]{2}")) {
+            throw new IllegalArgumentException("The first two characters of the account number must be uppercase letters");
+        }
     }
 
     public static void validateBalance(BigDecimal balance) {
@@ -66,9 +80,19 @@ public class BankAccount implements BaseEntity {
             throw new IllegalArgumentException("Balance cannot be null");
         }
 
+        if (balance.scale() > 2) {
+            throw new IllegalArgumentException("Amount can only have up to two decimal places");
+        }
+
         if (balance.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Balance must be greater than zero");
         }
+    }
+
+    public String getMaskedAccountNumber() {
+        var firstFourChars = this.accountNumber.substring(0, 4);
+        var maskedPart = "x".repeat(this.accountNumber.length() - 4);
+        return firstFourChars + maskedPart;
     }
 
     public UUID getId() {
@@ -85,6 +109,23 @@ public class BankAccount implements BaseEntity {
 
     public BigDecimal getBalance() {
         return balance;
+    }
+
+    public void deposit(BigDecimal amount) {
+        this.setBalance(this.getBalance().add(amount));
+    }
+
+    public void withdraw(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) > 0) {
+            throw new IllegalArgumentException("Amount have to be negative!");
+        }
+
+        var newBalance = this.getBalance().add(amount);
+        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Insufficient funds.");
+        }
+
+        this.setBalance(newBalance);
     }
 
     public void setBalance(BigDecimal balance) {
@@ -122,5 +163,26 @@ public class BankAccount implements BaseEntity {
 
     public void setTransactionsTo(List<Transaction> transactionsTo) {
         this.transactionsTo = transactionsTo;
+    }
+
+    @Override
+    public void markAsDeleted() {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    @Override
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    @Override
+    public LocalDateTime getDeletedAt() {
+        return this.deletedAt;
     }
 }

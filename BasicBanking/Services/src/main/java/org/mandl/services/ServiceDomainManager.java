@@ -20,7 +20,7 @@ public class ServiceDomainManager
             IdentityUserService userService,
             BankAccountService bankAccountService,
             TransactionService transactionService,
-            AuthenticationService authenticationService, AuthenticationDomainService authenticationDomainService) {
+            AuthenticationDomainService authenticationDomainService) {
         this.userService = userService;
         this.bankAccountService = bankAccountService;
         this.transactionService = transactionService;

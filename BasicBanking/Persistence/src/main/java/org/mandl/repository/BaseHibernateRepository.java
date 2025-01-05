@@ -5,8 +5,10 @@ import org.hibernate.Session;
 import org.mandl.LoggingHandler;
 import org.mandl.database.Context;
 import org.mandl.entities.BaseEntity;
+import org.mandl.entities.SoftDelete;
 import org.mandl.repositories.BaseRepository;
 
+import java.rmi.AccessException;
 import java.util.UUID;
 
 public abstract class BaseHibernateRepository<T extends BaseEntity>
@@ -33,11 +35,23 @@ public abstract class BaseHibernateRepository<T extends BaseEntity>
     }
 
     public void delete(T entity) {
+        if (entity instanceof SoftDelete) {
+            ((SoftDelete) entity).markAsDeleted();
+            return;
+        }
         session.remove(entity);
     }
 
     public T findById(UUID id) {
         var entity = session.get(entityClass, id);
+        if (entity instanceof SoftDelete) {
+            if (((SoftDelete) entity).isDeleted()) {
+                return null;
+            }
+
+            return entity;
+        }
+
         return entity;
     }
 
