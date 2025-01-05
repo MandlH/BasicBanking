@@ -6,12 +6,10 @@ import jakarta.enterprise.inject.Produces;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.service.ServiceRegistry;
 import org.mandl.entities.BankAccount;
 import org.mandl.entities.BankAccountType;
 import org.mandl.entities.Transaction;
 import org.mandl.entities.TransactionType;
-import org.mandl.identity.IdentityRole;
 import org.mandl.identity.IdentityUser;
 
 @ApplicationScoped
@@ -36,7 +34,6 @@ public class DatabaseConnection {
         configuration.setProperty("hibernate.format_sql", "false");
 
         configuration.addAnnotatedClass(IdentityUser.class);
-        configuration.addAnnotatedClass(IdentityRole.class);
         configuration.addAnnotatedClass(BankAccount.class);
         configuration.addAnnotatedClass(BankAccountType.class);
         configuration.addAnnotatedClass(Transaction.class);
