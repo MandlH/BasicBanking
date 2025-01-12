@@ -1,3 +1,27 @@
+By: Harald Mandl
+
+# Build Instruction
+
+## Voraussetzungen
+1. **Java Development Kit (JDK) 23** oder höher installiert.  
+2. **Apache Maven** (Version 3.6 oder höher empfohlen).  
+
+## Start
+Anleitung für IntelliJ
+1. Das Start Modul ist das Modul mit dem Namen `Main`
+2. Zuerst das Run/Debug Configurations Menu aufrufen.
+![image](img/IntelliJ-Get-Into-Config-.png)
+3. Neue Konfiguration für Application hinzufügen.
+![image](img/IntelliH-Add-Applicaiton-Config.png)
+4. Das Modul `Main` als Start festlegen
+![image](img/IntelliJ-Setup-Config.png)
+
+## Datenbank
+Die Datenbank erlaubt nur eine aktive Verbindung! Also kann nicht die ausgeführte Software und über externen DB Framework darauf zugegriffen werden!
+Falls DB eingesehen werden will (Kein Passwort)
+![image](img/IntelliJ-DB-Connection.png)
+
+
 # Kurze Zusammenfassung
 **Die eigentliche Dokumentaiton befindet sich im Ordner Dokumentaiton!**   
 Dieses Projekt ist eine **einfache Banking-App**, die anhand der **Onion Architecture** strukturiert ist und großen Wert auf **Encapsulation**, **Abstraction**, **Logging**, **Validation**, sowie **Error Handling** legt. 
