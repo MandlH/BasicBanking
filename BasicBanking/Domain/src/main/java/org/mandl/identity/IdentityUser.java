@@ -52,12 +52,12 @@ public class IdentityUser implements BaseEntity, SoftDelete {
         this.salt = salt;
     }
 
-    public static void validateUsername(String username) {
+    public void validateUsername(String username) {
         if (username == null) {
             throw new IllegalArgumentException("Username cannot be null.");
         }
 
-        String usernameRegex = "^[a-zA-Z0-9]{3,20}$";
+        var usernameRegex = "^[a-zA-Z0-9]{3,20}$";
 
         if (!username.matches(usernameRegex)) {
             throw new IllegalArgumentException(

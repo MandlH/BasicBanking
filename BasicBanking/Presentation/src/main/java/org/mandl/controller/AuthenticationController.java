@@ -46,12 +46,12 @@ public class AuthenticationController extends BaseController {
     }
 
     private void startLogin() {
-        try {
             MessageHandler.printHeader(LOGIN);
             printPrompt("Enter Username: ");
             var username = lastInput;
             printPrompt("Enter Password: ");
             var password = lastInput;
+        try {
             var user = serviceManager.getAuthenticationService().loginUser(username, password);
             var navigationController = ControllerFactory.getNavigationController(user, serviceManager);
             navigationController.start();
@@ -61,12 +61,13 @@ public class AuthenticationController extends BaseController {
     }
 
     private void startRegister() {
-        try {
+
             MessageHandler.printHeader(REGISTER);
             printPrompt("Enter Username: ");
             var username = lastInput;
             printPrompt("Enter Password: ");
             var password = lastInput;
+        try {
             var user = serviceManager.getAuthenticationService().registerUser(username, password);
             var navigationController = ControllerFactory.getNavigationController(user, serviceManager);
             navigationController.start();

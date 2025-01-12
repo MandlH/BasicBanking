@@ -50,8 +50,8 @@ public class BankAccountController extends BaseController {
     }
 
     private void listBankAccounts() {
+        MessageHandler.printHeader(LIST_BANK_ACCOUNTS);
         try {
-            MessageHandler.printHeader(LIST_BANK_ACCOUNTS);
             var bankAccounts = serviceManager
                     .getBankAccountService()
                     .getAllBankAccounts();
@@ -63,7 +63,7 @@ public class BankAccountController extends BaseController {
     }
 
     private void createBankAccount() {
-        try {
+
             MessageHandler.printHeader(CREATE_BANK_ACCOUNT);
 
             printPrompt("Enter Account Number: ");
@@ -86,10 +86,10 @@ public class BankAccountController extends BaseController {
                 return;
             }
 
+        try {
             printPrompt("Enter Balance: ");
             var balanceInput = lastInput.replace(",", ".");
             var balance = new BigDecimal(balanceInput);
-
 
             BankAccountDto bankAccountDto = new BankAccountDto(
                     accountNumber, balance, accountType, user
